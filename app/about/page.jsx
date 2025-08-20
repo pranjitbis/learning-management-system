@@ -1,5 +1,5 @@
 import Image from "next/image";
-import styles from "./About.module.css";
+import styles from "./styles/About.module.css";
 import aboutImage from "../../public/istockphoto-1321029825-612x612.jpg"; // Change to your actual image
 import Nav from '../components/Header/Page'
 export default function AboutPage() {

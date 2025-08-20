@@ -1,18 +1,4 @@
-/* styles/Style.module.css */
 
-/* --- CSS Variables for Theming --- */
-:root {
-  --primary-color: #6a11cb;
-  --secondary-color: #2575fc;
-  --background-color: #f8f9fa;
-  --surface-color: #ffffff;
-  --text-color: #495057;
-  --heading-color: #212529;
-  --border-color: #dee2e6;
-  --shadow-color: rgba(0, 0, 0, 0.08);
-  --shadow-hover: rgba(0, 0, 0, 0.15);
-  --star-color: #ffc107;
-}
 
 /* Global theme selector - wrapped in :global */
 :global([data-theme="dark"]) {
