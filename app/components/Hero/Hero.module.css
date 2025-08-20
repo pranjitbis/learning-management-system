@@ -1,0 +1,62 @@
+.hero {
+  position: relative;
+  text-align: center;
+  padding: 15rem 1rem 2rem;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.videoBackground {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  object-fit: cover;
+  z-index: -1;
+  height: 850px;
+  width: 100%;
+}
+
+.btnPrimary {
+  background: linear-gradient(45deg, #6a11cb, #2575fc);
+  font-size: 17px;
+  padding: 18px 60px;
+  color: white;
+  font-weight: bold;
+
+  border-radius: 20px;
+  height: 50px;
+  width: 40px;
+}
+
+.hero h1 {
+  font-size: clamp(2.5rem, 5vw, 4.5rem);
+  font-weight: 800;
+  color: #ffffff;
+  margin-bottom: 1rem;
+  text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.7);
+}
+
+.container {
+  position: relative;
+  z-index: 100;
+}
+
+.hero p {
+  font-size: 1.3rem;
+  max-width: 650px;
+  margin: 0 auto 2.5rem auto;
+  color: #e9ecef;
+  text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.7);
+}
+
+@media (max-width: 768px) {
+  .hero h1 {
+    font-size: clamp(2rem, 6vw, 3.5rem);
+  }
+
+  .hero p {
+    font-size: 1.1rem;
+  }
+}

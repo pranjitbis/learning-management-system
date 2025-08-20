@@ -1,0 +1,210 @@
+.pageSection {
+  background: var(--background-color);
+  color: var(--text-color);
+}
+
+.pageHero {
+  background-size: cover;
+  background-position: center;
+  height: 50vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: white;
+  position: relative;
+}
+
+.pageHero h1 {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.btnBack {
+  position: absolute;
+  top: 2rem;
+  left: 2rem;
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.3s ease;
+}
+
+.btnBack:hover {
+  color: var(--primary-color);
+}
+
+.aboutContent {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 3rem 2rem;
+}
+
+.aboutContent blockquote {
+  font-size: 1.5rem;
+  font-style: italic;
+  color: var(--primary-color);
+  margin-bottom: 2rem;
+  padding-left: 2rem;
+  border-left: 4px solid var(--primary-color);
+}
+
+.aboutContent h3 {
+  font-size: 1.8rem;
+  margin: 2rem 0 1rem;
+  color: var(--text-color);
+}
+
+.aboutContent p {
+  margin-bottom: 1rem;
+  line-height: 1.8;
+  color: var(--text-color);
+}
+
+.aboutPartners {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+  justify-content: center;
+  margin: 3rem 0;
+}
+
+.logoItem {
+  flex: 0 0 calc(20% - 2rem);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.logoImage {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  filter: grayscale(100%);
+  opacity: 0.7;
+  transition: all 0.3s ease;
+}
+
+.logoItem:hover .logoImage {
+  filter: grayscale(0%);
+  opacity: 1;
+}
+
+.aboutContactSection {
+  background: var(--primary-color);
+  color: white;
+  padding: 4rem 2rem;
+  text-align: center;
+}
+
+.sectionTitle {
+  font-size: 2rem;
+  margin-bottom: 1.5rem;
+}
+
+.aboutContactSection p {
+  max-width: 700px;
+  margin: 0 auto 2rem;
+  line-height: 1.6;
+}
+
+.btnGroup {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.8rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.btnPrimary {
+  background: white;
+  color: var(--primary-color);
+}
+
+.btnPrimary:hover {
+  background: #f0f0f0;
+  transform: translateY(-3px);
+}
+
+.btnSecondary {
+  background: transparent;
+  color: white;
+  border: 2px solid white;
+}
+
+.btnSecondary:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.disclaimer {
+  font-size: 0.8rem;
+  opacity: 0.8;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+@media (max-width: 992px) {
+  .logoItem {
+    flex: 0 0 calc(25% - 2rem);
+  }
+}
+
+@media (max-width: 768px) {
+  .pageHero h1 {
+    font-size: 2.5rem;
+  }
+  
+  .aboutContent {
+    padding: 2rem 1rem;
+  }
+  
+  .aboutContent blockquote {
+    font-size: 1.2rem;
+    padding-left: 1rem;
+  }
+  
+  .logoItem {
+    flex: 0 0 calc(33.333% - 2rem);
+  }
+  
+  .aboutContactSection {
+    padding: 3rem 1rem;
+  }
+  
+  .sectionTitle {
+    font-size: 1.8rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .logoItem {
+    flex: 0 0 calc(50% - 2rem);
+  }
+  
+  .btnGroup {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .btn {
+    width: 100%;
+    max-width: 300px;
+    justify-content: center;
+  }
+}

@@ -1,0 +1,109 @@
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id            Int                  @id @default(autoincrement())
+  name          String
+  email         String               @unique
+  password      String
+  role          String               @default("USER")
+  certificates  Certificate[]
+  access        Access[]
+  progress      UserCourseProgress[]
+  videoProgress UserVideoProgress[]
+  createdAt     DateTime             @default(now())
+  updatedAt     DateTime             @updatedAt
+}
+
+model Course {
+  id           Int                  @id @default(autoincrement())
+  title        String
+  description  String
+  price        Float
+  category     String
+  thumbnail    String?
+  videos       Video[]
+  access       Access[]
+  certificates Certificate[]
+  progress     UserCourseProgress[]
+  createdAt    DateTime             @default(now())
+  updatedAt    DateTime             @updatedAt
+}
+
+model Video {
+  id                Int                 @id @default(autoincrement())
+  title             String
+  url               String
+  duration          Int?                @default(0)
+  published         Boolean             @default(true)
+  position          Int?                @default(0)
+  courseId          Int
+  course            Course              @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  userVideoProgress UserVideoProgress[]
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+}
+
+model Access {
+  id          Int       @id @default(autoincrement())
+  userId      Int
+  courseId    Int
+  approved    Boolean   @default(false)
+  requestedAt DateTime  @default(now())
+  grantedAt   DateTime?
+
+  user   User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course Course? @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, courseId])
+}
+
+model Certificate {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  courseId  Int
+  filePath  String
+  issuedAt  DateTime @default(now())
+  approved  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user   User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course Course? @relation(fields: [courseId], references: [id], onDelete: Cascade)
+}
+
+model UserCourseProgress {
+  id           Int      @id @default(autoincrement())
+  userId       Int
+  courseId     Int
+  videosWatched Int
+  totalVideos  Int
+  completed    Boolean
+  completedAt  DateTime?
+
+  user    User?   @relation(fields: [userId], references: [id])
+  course  Course  @relation(fields: [courseId], references: [id])
+
+  @@unique([userId, courseId])
+}
+
+model UserVideoProgress {
+  id          Int       @id @default(autoincrement())
+  userId      Int
+  videoId     Int
+  progress    Int       @default(0)
+  completed   Boolean   @default(false)
+  completedAt DateTime?
+  lastUpdated DateTime  @updatedAt
+
+  user  User?  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  video Video  @relation(fields: [videoId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, videoId])
+}

@@ -1,0 +1,82 @@
+.aboutContainer {
+  max-width: 1200px;
+  margin: 150px auto;
+  padding: 2rem 1rem;
+  font-family: Arial, sans-serif;
+  color: #333;
+}
+
+/* Hero Section */
+.heroSection {
+  display: flex;
+  gap: 2rem;
+  align-items: center;
+  margin-bottom: 4rem;
+  flex-wrap: wrap;
+}
+
+.textContent {
+  flex: 1;
+}
+
+.textContent h1 {
+  font-size: 2.5rem;
+  color: #111;
+  margin-bottom: 1rem;
+}
+
+.textContent p {
+  line-height: 1.7;
+  margin-bottom: 1rem;
+  font-size: 1.05rem;
+  color: #555;
+}
+
+.imageWrapper {
+  flex: 1;
+  position: relative;
+  height: 350px;
+  min-width: 300px;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.aboutImage {
+  object-fit: cover;
+}
+
+/* Vision Section */
+.visionSection {
+  background: #f9f9ff;
+  padding: 2.5rem;
+  border-radius: 12px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+}
+
+.visionSection h2 {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  color: #222;
+}
+
+.visionSection p {
+  font-size: 1.05rem;
+  line-height: 1.7;
+  margin-bottom: 1rem;
+  color: #555;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .heroSection {
+    flex-direction: column;
+  }
+
+  .textContent h1 {
+    font-size: 2rem;
+  }
+
+  .imageWrapper {
+    height: 250px;
+  }
+}

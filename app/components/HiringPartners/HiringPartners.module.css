@@ -1,0 +1,74 @@
+.hiringPartners {
+  padding: 5rem 0rem;
+  background: rgb(249, 249, 249);
+  overflow: hidden;
+}
+
+.sectionTitle {
+  text-align: center;
+  margin-bottom: 5rem;
+  font-size: 2.5rem;
+  color: var(--text-color);
+}
+
+.logoSliderContainer {
+  max-width: 2400px;
+  margin: 0px auto;
+  overflow: hidden;
+  position: relative;
+}
+
+.logoSliderTrack {
+  display: flex;
+  gap: 3rem;
+  animation: scroll 30s linear infinite;
+  width: calc(150px * 28);
+}
+
+.logoItem {
+  flex: 0 0 auto;
+  width: 150px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 1rem;
+}
+
+.logoImage {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: grayscale(100%);
+  opacity: 0.7;
+  transition: all 0.3s ease;
+}
+
+.logoImage:hover {
+  filter: grayscale(0%);
+  opacity: 1;
+}
+
+@keyframes scroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(calc(-150px * 14));
+  }
+}
+
+@media (max-width: 768px) {
+  .hiringPartners {
+    padding: 3rem 1rem;
+  }
+  
+  .sectionTitle {
+    font-size: 2rem;
+  }
+  
+  .logoItem {
+    width: 120px;
+    height: 60px;
+  }
+}

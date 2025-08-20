@@ -1,0 +1,680 @@
+/* styles/Style.module.css */
+
+/* --- CSS Variables for Theming --- */
+:root {
+  --primary-color: #6a11cb;
+  --secondary-color: #2575fc;
+  --background-color: #f8f9fa;
+  --surface-color: #ffffff;
+  --text-color: #495057;
+  --heading-color: #212529;
+  --border-color: #dee2e6;
+  --shadow-color: rgba(0, 0, 0, 0.08);
+  --shadow-hover: rgba(0, 0, 0, 0.15);
+  --star-color: #ffc107;
+}
+
+/* Global theme selector - wrapped in :global */
+:global([data-theme="dark"]) {
+  --primary-color: #8e44ad;
+  --secondary-color: #3498db;
+  --background-color: #121212;
+  --surface-color: #1e1e1e;
+  --text-color: #adb5bd;
+  --heading-color: #e9ecef;
+  --border-color: #343a40;
+  --shadow-color: rgba(0, 0, 0, 0.4);
+  --shadow-hover: rgba(0, 0, 0, 0.6);
+  --star-color: #ffca2c;
+}
+
+/* --- General Styles --- */
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.sectionTitle {
+  text-align: center;
+  font-size: 2.8rem;
+  color: var(--heading-color);
+  margin-bottom: 3rem;
+}
+
+/* --- Header & Navigation --- */
+.header {
+  background-color: var(--surface-color);
+  box-shadow: 0 4px 12px var(--shadow-color);
+  padding: 1rem 0;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  transition: background-color 0.4s ease;
+}
+
+.headerContainer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo {
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+}
+
+.logo img {
+  height: 45px;
+  width: auto;
+}
+
+.navWrapper {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.navList {
+  list-style: none;
+  display: flex;
+  gap: 1.5rem;
+}
+
+.navLink {
+  text-decoration: none;
+  color: var(--text-color);
+  font-weight: 600;
+  font-size: 1rem;
+  position: relative;
+  transition: color 0.3s ease;
+  padding: 5px 0;
+  cursor: pointer;
+}
+
+.navLink:hover {
+  color: var(--heading-color);
+}
+
+/* Dropdown styles */
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdownContent {
+  display: none;
+  position: absolute;
+  background-color: var(--surface-color);
+  min-width: 220px;
+  box-shadow: 0 8px 16px var(--shadow-hover);
+  z-index: 1;
+  border-radius: 8px;
+  padding: 0.5rem 0;
+  margin-top: 0.5rem;
+}
+
+.dropdownContent a {
+  color: var(--text-color);
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+  font-weight: 500;
+}
+
+.dropdownContent a:hover {
+  background-color: var(--background-color);
+  color: var(--primary-color);
+}
+
+.dropdown:hover .dropdownContent {
+  display: block;
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.btnLogin, .btnRegister {
+  font-weight: 600;
+  color: var(--text-color);
+  text-decoration: none;
+  padding: 8px 12px;
+  transition: color 0.3s ease;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.btnLogin:hover {
+  color: var(--primary-color);
+}
+
+.btnRegister {
+  background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+  color: #fff !important;
+  padding: 8px 20px;
+  border-radius: 50px;
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.btnRegister:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px var(--shadow-hover);
+}
+
+.themeButton {
+  background-color: var(--background-color);
+  border: 1px solid var(--border-color);
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-color);
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.themeButton:hover {
+  transform: translateY(-2px) scale(1.1);
+  color: var(--primary-color);
+  box-shadow: 0 4px 10px var(--shadow-hover);
+}
+
+.navToggle {
+  display: none;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: var(--text-color);
+  cursor: pointer;
+}
+
+/* --- Hero Section --- */
+.hero {
+  position: relative;
+  text-align: center;
+  padding: 8rem 1rem;
+  background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('https://images.unsplash.com/photo-1554118811-1e0d58224f24?q=80&w=2047&auto=format&fit=crop');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.hero h1 {
+  font-size: clamp(2.5rem, 5vw, 4.5rem);
+  font-weight: 800;
+  color: #ffffff;
+  margin-bottom: 1rem;
+  text-shadow: 2px 2px 8px rgba(0,0,0,0.7);
+}
+
+.hero p {
+  font-size: 1.3rem;
+  max-width: 650px;
+  margin: 0 auto 2.5rem auto;
+  color: #e9ecef;
+  text-shadow: 1px 1px 4px rgba(0,0,0,0.7);
+}
+
+/* --- Buttons --- */
+.btn {
+  padding: 15px 35px;
+  border-radius: 50px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 1.1rem;
+  border: none;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  cursor: pointer;
+}
+
+.btnPrimary {
+  background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+  color: #fff;
+  box-shadow: 0 4px 15px var(--shadow-color);
+}
+
+.btnPrimary:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px var(--shadow-hover);
+}
+
+.btnSecondary {
+  background-color: var(--surface-color);
+  color: var(--primary-color);
+  border: 2px solid var(--primary-color);
+}
+
+.btnSecondary:hover {
+  background-color: var(--primary-color);
+  color: var(--surface-color);
+  transform: scale(1.05);
+}
+
+/* --- Courses Section --- */
+.coursesSection {
+  padding: 4rem 0;
+  overflow: hidden;
+  position: relative;
+}
+
+.courseSlider {
+  display: flex;
+  width: fit-content;
+  animation: scrollCourses 60s linear infinite;
+}
+
+.courseSlider:hover {
+  animation-play-state: paused;
+}
+
+@keyframes scrollCourses {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.courseCard {
+  background-color: var(--surface-color);
+  border-radius: 15px;
+  box-shadow: 0 5px 20px var(--shadow-color);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  width: 350px;
+  margin: 0 1rem;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.courseCard:hover {
+  transform: translateY(-12px);
+  box-shadow: 0 10px 30px var(--shadow-hover);
+}
+
+.cardImage {
+  width: 100%;
+  height: 220px;
+  object-fit: cover;
+}
+
+.cardContent {
+  padding: 1.5rem;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.cardContent h3 {
+  font-size: 1.4rem;
+  color: var(--heading-color);
+  margin-bottom: 0.5rem;
+}
+
+.cardFooter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: auto;
+}
+
+.coursePrice {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--heading-color);
+}
+
+/* --- Why Choose Us Section --- */
+.whyChooseUsSection {
+  padding: 4rem 0;
+  background-color: var(--surface-color);
+}
+
+.whyChooseUsContainer {
+  display: grid;
+  grid-template-columns: 1fr 1.5fr;
+  align-items: center;
+  gap: 3rem;
+}
+
+.whyChooseUsImage {
+  text-align: center;
+}
+
+.whyChooseUsImage img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 15px;
+}
+
+.reason {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.reasonIcon {
+  font-size: 2rem;
+  color: var(--primary-color);
+  margin-top: 5px;
+}
+
+.reasonText h5 {
+  font-size: 1.2rem;
+  color: var(--heading-color);
+  margin-bottom: 0.5rem;
+}
+
+/* --- Hiring Partners Section --- */
+.hiringPartnersSection {
+  padding: 4rem 0;
+  background-color: var(--background-color);
+  overflow: hidden;
+  position: relative;
+}
+
+.logoSliderContainer {
+  display: flex;
+  align-items: center;
+  width: fit-content;
+  animation: scrollLogo 30s linear infinite;
+}
+
+.logoSliderContainer:hover {
+  animation-play-state: paused;
+}
+
+@keyframes scrollLogo {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.logoItem {
+  height: 60px;
+  margin: 0 40px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Logo item styles for dark theme */
+:global([data-theme="dark"]) .logoItem img {
+  opacity: 0.7;
+  filter: invert(0.9) brightness(1.5);
+}
+
+:global([data-theme="dark"]) .logoItem img:hover {
+  opacity: 1;
+  filter: none;
+}
+
+.logoItem img {
+  max-height: 100%;
+  width: auto;
+  opacity: 0.8;
+  transition: all 0.3s ease;
+}
+
+.logoItem img:hover {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+/* --- Process Section --- */
+.processSection {
+  padding: 4rem 0;
+  background-color: var(--surface-color);
+}
+
+.processTimeline {
+  display: flex;
+  justify-content: space-between;
+  position: relative;
+  margin: 2rem auto 0 auto;
+}
+
+.processStep {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  width: 18%;
+  position: relative;
+}
+
+.stepIcon {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background-color: var(--surface-color);
+  border: 2px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  color: var(--secondary-color);
+  z-index: 1;
+  transition: all 0.3s ease;
+}
+
+.processStep:hover .stepIcon {
+  background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+  color: #fff;
+  transform: scale(1.1);
+  border-color: var(--primary-color);
+}
+
+/* --- Reviews Section --- */
+.reviewsSection {
+  padding: 4rem 0;
+  overflow: hidden;
+  position: relative;
+}
+
+.reviewSlider {
+  display: flex;
+  width: fit-content;
+  animation: scroll 40s linear infinite;
+}
+
+.reviewSlider:hover {
+  animation-play-state: paused;
+}
+
+@keyframes scroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.reviewCard {
+  background-color: var(--surface-color);
+  border-radius: 15px;
+  padding: 2rem;
+  box-shadow: 0 5px 20px var(--shadow-color);
+  width: 380px;
+  margin: 0 1rem;
+  flex-shrink: 0;
+}
+
+/* --- Footer --- */
+.footer {
+  background-color: var(--surface-color);
+  padding: 4rem 1rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.footerContainer {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2.5rem;
+  text-align: center;
+}
+
+.footerColumn h4 {
+  font-size: 1.2rem;
+  color: var(--heading-color);
+  margin-bottom: 1.5rem;
+}
+
+.footerColumn p, .footerColumn li {
+  margin-bottom: 1rem;
+  font-size: 0.95rem;
+}
+
+.footerColumn ul {
+  list-style: none;
+  padding: 0;
+}
+
+.footerColumn a {
+  color: var(--text-color);
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.footerColumn a:hover {
+  color: var(--primary-color);
+}
+
+.footerSocials {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  justify-content: center;
+}
+
+.footerBottom {
+  text-align: center;
+  margin-top: 3rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--border-color);
+}
+
+/* --- Responsive Design --- */
+@media (max-width: 992px) {
+  .processTimeline {
+    flex-direction: column;
+    align-items: center;
+    gap: 3rem;
+  }
+  
+  .processStep {
+    width: 100%;
+    max-width: 300px;
+  }
+  
+  .whyChooseUsContainer {
+    grid-template-columns: 1fr;
+  }
+  
+  .courseCard, .reviewCard {
+    width: 320px;
+  }
+}
+
+@media (max-width: 850px) {
+  .navToggle {
+    display: block;
+    z-index: 1001;
+  }
+
+  .navWrapper {
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100vh;
+    background-color: var(--surface-color);
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 2rem;
+    transition: left 0.3s ease-in-out;
+  }
+
+  .navWrapper.active {
+    left: 0;
+  }
+  
+  .navList {
+    flex-direction: column;
+    gap: 2rem;
+  }
+
+  .navLink {
+    font-size: 1.5rem;
+  }
+
+  .dropdownContent {
+    position: static;
+    display: none;
+    padding-left: 2rem;
+  }
+
+  .headerActions {
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .sectionTitle {
+    font-size: 2.2rem;
+  }
+  
+  .hero h1 {
+    font-size: clamp(2rem, 6vw, 3.5rem);
+  }
+  
+  .hero p {
+    font-size: 1.1rem;
+  }
+}
+
+@media (min-width: 600px) {
+  .footerContainer {
+    grid-template-columns: repeat(2, 1fr);
+    text-align: left;
+  }
+  
+  .footerSocials {
+    justify-content: flex-start;
+  }
+}
+
+@media (min-width: 992px) {
+  .footerContainer {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .formContainer {
+    padding: 1.5rem;
+  }
+  
+  .courseCard, .reviewCard {
+    width: 85vw;
+    max-width: 300px;
+  }
+  
+  .pageHero h1 {
+    font-size: 2.5rem;
+  }
+}

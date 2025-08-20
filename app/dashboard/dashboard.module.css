@@ -1,0 +1,1104 @@
+/* Base Styles */
+.dashboardWrapper {
+  display: flex;
+  min-height: 100vh;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f5f7fa;
+  color: #333;
+  transition: all 0.3s ease;
+}
+
+.darkMode {
+  background-color: #1a1a1a;
+  color: #f0f0f0;
+}
+
+/* Loading State */
+.loadingContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  gap: 1rem;
+}
+
+.spinner {
+  animation: spin 1s linear infinite;
+  font-size: 2rem;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Error State */
+.errorContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  gap: 1rem;
+  text-align: center;
+  padding: 2rem;
+}
+
+.retryBtn {
+  padding: 0.75rem 1.5rem;
+  background-color: #4a6cf7;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.retryBtn:hover {
+  background-color: #3a5ce4;
+}
+
+.darkMode .retryBtn {
+  background-color: #5a7df8;
+}
+
+.darkMode .retryBtn:hover {
+  background-color: #4a6cf7;
+}
+
+/* Mobile Header */
+.mobileHeader {
+  display: none;
+  padding: 1rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 100;
+}
+
+.darkMode .mobileHeader {
+  background-color: #2a2a2a;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.menuToggle {
+  background: none;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+}
+
+.mobileTitle {
+  font-size: 1.2rem;
+  margin: 0;
+}
+
+.darkModeToggleMobile {
+  background: none;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+}
+
+/* Sidebar */
+.sidebar {
+  width: 280px;
+  background-color: #fff;
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.3s ease;
+}
+
+.darkMode .sidebar {
+  background-color: #2a2a2a;
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.3);
+}
+
+.sidebarHeader {
+  padding: 1.5rem;
+  border-bottom: 1px solid #eee;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.darkMode .sidebarHeader {
+  border-bottom-color: #444;
+}
+
+.userAvatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background-color: #e0e7ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1rem;
+  color: #4a6cf7;
+}
+
+.darkMode .userAvatar {
+  background-color: #333;
+}
+
+.userInfo {
+  text-align: center;
+}
+
+.userInfo h3 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.userInfo p {
+  margin: 0.25rem 0 0;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.darkMode .userInfo p {
+  color: #aaa;
+}
+
+.sidebarNav {
+  flex: 1;
+  padding: 1rem 0;
+}
+
+.menuItem {
+  padding: 0.75rem 1.5rem;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.menuItem:hover {
+  background-color: #f0f4ff;
+}
+
+.darkMode .menuItem:hover {
+  background-color: #333;
+}
+
+.menuIcon {
+  margin-right: 12px;
+  font-size: 1rem;
+  color: #666;
+}
+
+.darkMode .menuIcon {
+  color: #aaa;
+}
+
+.sidebarFooter {
+  padding: 1rem 0;
+  border-top: 1px solid #eee;
+}
+
+.darkMode .sidebarFooter {
+  border-top-color: #444;
+}
+
+.logoutBtn {
+  width: 100%;
+  padding: 0.75rem 1.5rem;
+  background: none;
+  border: none;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  color: #e74c3c;
+  transition: background-color 0.2s;
+}
+
+.logoutBtn:hover {
+  background-color: #ffebee;
+}
+
+.darkMode .logoutBtn {
+  color: #ff6b6b;
+}
+
+.darkMode .logoutBtn:hover {
+  background-color: #3a2a2a;
+}
+
+/* Main Content */
+.mainContent {
+  flex: 1;
+  padding: 2rem;
+  overflow-y: auto;
+}
+
+.contentHeader {
+  margin-bottom: 2rem;
+}
+
+.contentHeader h1 {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 600;
+}
+
+.contentHeader p {
+  margin: 0.5rem 0 0;
+  color: #666;
+  font-size: 1rem;
+}
+
+.darkMode .contentHeader p {
+  color: #aaa;
+}
+
+.sectionTitle {
+  display: flex;
+  align-items: center;
+  font-size: 1.5rem;
+  margin: 2rem 0 1.5rem;
+  color: #4a6cf7;
+}
+
+.darkMode .sectionTitle {
+  color: #5a7df8;
+}
+
+.sectionIcon {
+  margin-right: 12px;
+}
+
+.emptyState {
+  text-align: center;
+  padding: 3rem;
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.darkMode .emptyState {
+  background-color: #2a2a2a;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+.primaryBtn {
+  padding: 0.75rem 1.5rem;
+  background-color: #4a6cf7;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  margin-top: 1rem;
+  transition: background-color 0.2s;
+}
+
+.primaryBtn:hover {
+  background-color: #3a5ce4;
+}
+
+.darkMode .primaryBtn {
+  background-color: #5a7df8;
+}
+
+.darkMode .primaryBtn:hover {
+  background-color: #4a6cf7;
+}
+
+/* Courses Grid */
+.coursesGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 1.5rem;
+}
+
+.courseCard {
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.darkMode .courseCard {
+  background-color: #2a2a2a;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+.courseCard:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.darkMode .courseCard:hover {
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.courseHeader {
+  padding: 1.25rem;
+  border-bottom: 1px solid #eee;
+}
+
+.darkMode .courseHeader {
+  border-bottom-color: #444;
+}
+
+.courseHeader h3 {
+  margin: 0 0 1rem;
+  font-size: 1.2rem;
+}
+
+.courseProgress {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.progressBar {
+  flex: 1;
+  height: 6px;
+  background-color: #e0e7ff;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.darkMode .progressBar {
+  background-color: #333;
+}
+
+.progressFill {
+  height: 100%;
+  background-color: #4a6cf7;
+  transition: width 0.3s ease;
+}
+
+.courseProgress span {
+  font-size: 0.85rem;
+  color: #666;
+  white-space: nowrap;
+}
+
+.darkMode .courseProgress span {
+  color: #aaa;
+}
+
+.videosList {
+  padding: 1rem;
+}
+
+.videoCard {
+  margin-bottom: 1.25rem;
+}
+
+.videoHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.videoHeader h4 {
+  margin: 0;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.videoPlayIcon {
+  color: #4a6cf7;
+}
+
+.videoCompletedIcon {
+  color: #10b981;
+}
+
+.videoLockedIcon {
+  color: #ff4757;
+}
+
+.videoDuration {
+  font-size: 0.85rem;
+  color: #666;
+  background-color: #f0f4ff;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+}
+
+.darkMode .videoDuration {
+  color: #aaa;
+  background-color: #333;
+}
+
+/* YouTube Player Container - UPDATED */
+.videoContainer {
+  position: relative;
+  width: 100%;
+  padding-top: 56.25%; /* 16:9 Aspect Ratio */
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 15px;
+  background: #000;
+  /* Add these to prevent right-click menu */
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* YouTube Player - UPDATED */
+.videoPlayer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+  /* Add pointer-events to prevent right-click */
+  pointer-events: auto;
+}
+
+/* Custom overlay to prevent right-click menu */
+.videoOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 10;
+  pointer-events: none;
+}
+
+/* Additional CSS for dark mode */
+.darkMode .videoContainer {
+  background: #111;
+}
+
+.darkMode .videoPlayer {
+  filter: brightness(0.9);
+}
+
+/* Locked video state */
+.lockedOverlay {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 40px 20px;
+  border-radius: 8px;
+  text-align: center;
+  min-height: 200px;
+}
+
+.lockedBadge {
+  background: #ff4757;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.7rem;
+  margin-left: 10px;
+}
+
+.videoProgress {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.videoProgress span {
+  font-size: 0.8rem;
+  color: #666;
+  white-space: nowrap;
+}
+
+.darkMode .videoProgress span {
+  color: #aaa;
+}
+
+.courseFooter {
+  padding: 1rem;
+  border-top: 1px solid #eee;
+  text-align: center;
+}
+
+.darkMode .courseFooter {
+  border-top-color: #444;
+}
+
+.certificateBtn {
+  padding: 0.75rem 1.5rem;
+  background-color: #10b981;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: background-color 0.2s;
+}
+
+.certificateBtn:hover {
+  background-color: #0e9f72;
+}
+
+.certificateBtn.disabled {
+  background-color: #e5e7eb;
+  color: #6b7280;
+  cursor: not-allowed;
+}
+
+.darkMode .certificateBtn.disabled {
+  background-color: #444;
+  color: #888;
+}
+
+/* Certificates Section */
+.certificatesGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.certificateCard {
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.darkMode .certificateCard {
+  background-color: #2a2a2a;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+.certificateCard:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.darkMode .certificateCard:hover {
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.certificatePreview {
+  width: 120px;
+  height: 90px;
+  background-color: #f0f4ff;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1rem;
+  color: #4a6cf7;
+}
+
+.darkMode .certificatePreview {
+  background-color: #333;
+}
+
+.certificateInfo {
+  margin-bottom: 1.5rem;
+}
+
+.certificateInfo h3 {
+  margin: 0 0 0.5rem;
+  font-size: 1.1rem;
+}
+
+.certificateInfo p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.darkMode .certificateInfo p {
+  color: #aaa;
+}
+
+.downloadBtn {
+  padding: 0.5rem 1rem;
+  background-color: #4a6cf7;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: background-color 0.2s;
+}
+
+.downloadBtn:hover {
+  background-color: #3a5ce4;
+}
+
+/* Add these new styles to your existing CSS */
+
+/* Toggle Switch */
+.toggleSwitch {
+  position: relative;
+  width: 60px;
+  height: 30px;
+  background-color: #e0e7ff;
+  border-radius: 15px;
+  margin-right: 12px;
+  cursor: pointer;
+}
+
+.darkMode .toggleSwitch {
+  background-color: #444;
+}
+
+.toggleSlider {
+  position: absolute;
+  width: 26px;
+  height: 26px;
+  background-color: #4a6cf7;
+  border-radius: 50%;
+  top: 2px;
+  left: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 12px;
+  transition: transform 0.3s ease;
+}
+
+.toggleSliderActive {
+  transform: translateX(30px);
+  background-color: #f0f0f0;
+  color: #333;
+}
+
+/* Certificates Toggle Button */
+.certificatesToggleBtn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0.75rem 1.5rem;
+  background-color: #e0e7ff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  margin-bottom: 1.5rem;
+  transition: all 0.3s ease;
+}
+
+.darkMode .certificatesToggleBtn {
+  background-color: #333;
+  color: #f0f0f0;
+}
+
+.certificatesToggleBtn:hover {
+  background-color: #d0d7ff;
+}
+
+.darkMode .certificatesToggleBtn:hover {
+  background-color: #444;
+}
+
+.certificatesToggleBtn.active {
+  background-color: #4a6cf7;
+  color: white;
+}
+
+.toggleIcon {
+  font-size: 1rem;
+}
+
+/* Badge */
+.badge {
+  background-color: #4a6cf7;
+  color: white;
+  border-radius: 10px;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+  margin-left: 8px;
+}
+
+.darkMode .badge {
+  background-color: #5a7df8;
+}
+
+/* Courses Subsection */
+.coursesSubsection {
+  margin-bottom: 2rem;
+}
+
+.subsectionTitle {
+  font-size: 1.25rem;
+  margin-bottom: 1rem;
+  color: #4a6cf7;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.darkMode .subsectionTitle {
+  color: #5a7df8;
+}
+
+/* Expand Icon */
+.expandIcon {
+  margin-left: auto;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+/* Certificate Card Enhancements */
+.certificateCard {
+  position: relative;
+  overflow: hidden;
+}
+
+.completionStatus {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 0.5rem;
+  color: #10b981;
+  font-weight: 500;
+}
+
+.completionIcon {
+  font-size: 0.9rem;
+}
+
+/* Section Transitions */
+.certificatesSection {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.5s ease, opacity 0.3s ease;
+  opacity: 0;
+}
+
+.certificatesSection.show {
+  max-height: 1000px;
+  opacity: 1;
+  margin-bottom: 2rem;
+}
+
+.coursesSection.hidden {
+  display: none;
+}
+
+/* Certificates Panel */
+.certificatesPanel {
+  position: fixed;
+  top: 0;
+  right: -400px;
+  width: 400px;
+  height: 100vh;
+  background-color: #fff;
+  box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
+  z-index: 999;
+  transition: right 0.3s ease;
+  overflow-y: auto;
+}
+
+.darkMode .certificatesPanel {
+  background-color: #2a2a2a;
+  box-shadow: -2px 0 10px rgba(0, 0, 0, 0.3);
+}
+
+.certificatesPanel.show {
+  right: 0;
+}
+
+.panelHeader {
+  padding: 1.5rem;
+  border-bottom: 1px solid #eee;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  background-color: inherit;
+  z-index: 1;
+}
+
+.darkMode .panelHeader {
+  border-bottom-color: #444;
+}
+
+.panelHeader h3 {
+  margin: 0;
+  font-size: 1.25rem;
+  color: #4a6cf7;
+}
+
+.darkMode .panelHeader h3 {
+  color: #5a7df8;
+}
+
+.closePanelBtn {
+  background: none;
+  border: none;
+  color: #666;
+  cursor: pointer;
+  font-size: 1.25rem;
+}
+
+.darkMode .closePanelBtn {
+  color: #aaa;
+}
+
+.certificatesList {
+  padding: 1rem;
+}
+
+.certificateItem {
+  padding: 1rem;
+  margin-bottom: 1rem;
+  background-color: #f5f7fa;
+  border-radius: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.darkMode .certificateItem {
+  background-color: #333;
+}
+
+.certificateInfo h4 {
+  margin: 0 0 0.5rem;
+  font-size: 1rem;
+}
+
+.certificateInfo p {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #666;
+}
+
+.darkMode .certificateInfo p {
+  color: #aaa;
+}
+
+.downloadBtn {
+  padding: 0.5rem 1rem;
+  background-color: #4a6cf7;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: background-color 0.2s;
+}
+
+.downloadBtn:hover {
+  background-color: #3a5ce4;
+}
+
+.darkMode .downloadBtn {
+  background-color: #5a7df8;
+}
+
+.darkMode .downloadBtn:hover {
+  background-color: #4a6cf7;
+}
+
+/* Main Content Shift */
+.mainContent {
+  transition: margin-right 0.3s ease;
+}
+
+.contentShifted {
+  margin-right: 400px;
+}
+
+/* REMOVED the non-working iframe CSS selectors */
+.videoPlayer iframe {
+  /* This is the only safe way to style the iframe from outside */
+  position: relative;
+  z-index: 1;
+}
+
+.cancelBtn {
+  display: none;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .certificatesPanel {
+    width: 100%;
+    right: -100%;
+  }
+
+  .contentShifted {
+    margin-right: 0;
+  }
+}
+
+/* Responsive Styles */
+@media (max-width: 1024px) {
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    z-index: 1000;
+    transform: translateX(-100%);
+  }
+
+  .sidebarOpen {
+    transform: translateX(0);
+  }
+
+  .mobileHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  #darkModeToggle {
+    position: relative;
+    top: 30px;
+    right: 20px;
+  }
+
+  .mainContent {
+    padding: 1rem;
+    margin-top: 60px;
+  }
+
+  .coursesGrid {
+    grid-template-columns: 1fr;
+  }
+  .cancelBtn {
+    position: absolute;
+    left: 83%;
+    top: 3%;
+    font-size: 30px;
+    color: red;
+    cursor: pointer;
+    display: block;
+  }
+}
+
+@media (max-width: 768px) {
+  .contentHeader h1 {
+    font-size: 1.5rem;
+  }
+
+  .sectionTitle {
+    font-size: 1.25rem;
+  }
+}
+
+/* NEW: YouTube Player Customization Workaround */
+.youtube-player-container {
+  position: relative;
+  width: 100%;
+  height: 0;
+  padding-bottom: 56.25%; /* 16:9 aspect ratio */
+  overflow: hidden;
+}
+
+.youtube-player-container iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+/* Custom player controls overlay */
+.custom-player-controls {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
+  padding: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 10;
+}
+
+.custom-play-btn, .custom-mute-btn {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: white;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.custom-play-btn:hover, .custom-mute-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.custom-progress-bar {
+  flex-grow: 1;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 2px;
+  margin: 0 10px;
+  position: relative;
+  overflow: hidden;
+}
+
+.custom-progress-filled {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background: #ff0000;
+  width: 0%;
+}
+
+/* Block right-click context menu */
+.video-container-wrapper {
+  position: relative;
+}
+
+.video-container-wrapper::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 5;
+  pointer-events: none;
+}
+
+/* Disable right-click on video containers */
+.videoContainer {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}

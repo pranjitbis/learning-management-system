@@ -1,0 +1,114 @@
+.contactContainer {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+  font-family: Arial, sans-serif;
+}
+
+.pageTitle {
+  font-size: 2.5rem;
+  text-align: center;
+  color: #111;
+  margin-bottom: 0.5rem;
+}
+
+.pageSubtitle {
+  text-align: center;
+  color: #555;
+  max-width: 700px;
+  margin: 0 auto 2rem;
+  font-size: 1.1rem;
+}
+
+.contactContent {
+  display: flex;
+  gap: 3rem;
+  flex-wrap: wrap;
+}
+
+/* Form Section */
+.formWrapper {
+  flex: 1;
+  background: #f9f9ff;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.contactForm {
+  display: flex;
+  flex-direction: column;
+}
+
+.formGroup {
+  margin-bottom: 1.5rem;
+}
+
+.formGroup label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: #333;
+}
+
+.formGroup input,
+.formGroup textarea {
+  width: 100%;
+  padding: 0.8rem;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+  background: white;
+  transition: border 0.3s ease;
+}
+
+.formGroup input:focus,
+.formGroup textarea:focus {
+  outline: none;
+  border-color: #4caf50;
+}
+
+.submitButton {
+  padding: 0.9rem;
+  background: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.submitButton:hover {
+  background: #43a047;
+}
+
+/* Info Section */
+.infoWrapper {
+  flex: 1;
+  padding: 2rem;
+  border-radius: 12px;
+  background: white;
+}
+
+.infoWrapper h2 {
+  margin-bottom: 1rem;
+  color: #222;
+}
+
+.infoWrapper p {
+  margin-bottom: 1.5rem;
+  color: #555;
+}
+
+.infoItem {
+  margin-bottom: 1rem;
+  font-size: 1.05rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .contactContent {
+    flex-direction: column;
+  }
+}
