@@ -12,12 +12,11 @@ export async function POST(req) {
       return NextResponse.json({ error: "Email and password are required" }, { status: 400 });
     }
 
-    // Find user in database (case-insensitive email search)
+    // Find user in database - REMOVED the invalid 'mode: insensitive'
     const user = await prisma.user.findFirst({
       where: {
         email: {
-          equals: email.toLowerCase(),
-          mode: 'insensitive'
+          equals: email.toLowerCase() // Just use equals without mode
         }
       },
       select: { 
