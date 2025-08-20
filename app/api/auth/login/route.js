@@ -3,9 +3,6 @@ import { sign } from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import prisma from '@/lib/prisma';
 
-const ADMIN_EMAIL = "pra";
-const ADMIN_PASSWORD = "pra";
-
 export async function POST(req) {
   try {
     const { email, password } = await req.json();
@@ -15,43 +12,14 @@ export async function POST(req) {
       return NextResponse.json({ error: "Email and password are required" }, { status: 400 });
     }
 
-    // Admin login
-    if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
-      const token = sign(
-        { 
-          userId: "admin", 
-          email: ADMIN_EMAIL, 
-          role: "ADMIN" 
-        },
-        process.env.NEXTAUTH_SECRET,
-        { expiresIn: "7d" }
-      );
-
-      const response = NextResponse.json({
-        message: "Admin login successful",
-        user: { 
-          id: "admin", 
-          name: "Admin", 
-          email: ADMIN_EMAIL,
-          role: "ADMIN" 
-        },
-        role: "ADMIN",
-      });
-
-      response.cookies.set("lms_token", token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "lax", // Changed from strict to lax for better compatibility
-        maxAge: 7 * 24 * 60 * 60,
-        path: "/",
-      });
-
-      return response;
-    }
-
-    // Regular user login
-    const user = await prisma.user.findUnique({
-      where: { email: email.toLowerCase() },
+    // Find user in database (case-insensitive email search)
+    const user = await prisma.user.findFirst({
+      where: {
+        email: {
+          equals: email.toLowerCase(),
+          mode: 'insensitive'
+        }
+      },
       select: { 
         id: true, 
         name: true, 
@@ -70,11 +38,13 @@ export async function POST(req) {
       return NextResponse.json({ error: "Please use social login or reset password" }, { status: 401 });
     }
 
+    // Verify password
     const isValid = await bcrypt.compare(password, user.password);
     if (!isValid) {
       return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
     }
 
+    // Generate JWT token
     const token = sign(
       { 
         userId: user.id, 
@@ -96,6 +66,7 @@ export async function POST(req) {
       role: user.role || "USER",
     });
 
+    // Set cookie
     response.cookies.set("lms_token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
