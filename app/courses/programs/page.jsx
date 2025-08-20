@@ -1,5 +1,5 @@
 import Image from 'next/image';
-import styles from './Programs.module.css';
+import styles from "./Programs.module.css";
 import heroImage from '@/public/programs/programs-hero.jpg';
 
 export default function Programs() {
