@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import styles from "./Programs.module.css";
-import heroImage from '@/public/programs/programs-hero.jpg';
+import heroImage from '../../../public/';
 
 export default function Programs() {
   const programs = [

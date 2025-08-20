@@ -1,4 +1,4 @@
-import { prisma } from '@/lib/prisma'
+import  prisma  from '@/lib/prisma'
 import { verify } from "jsonwebtoken";
 
 export async function GET(request) {

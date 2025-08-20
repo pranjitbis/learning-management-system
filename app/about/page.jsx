@@ -4,7 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import Header from '../../components/Header/Page';
 import Footer from '../../components/Footer/Page';
-import styles from "@/app/about/styles/About.module.css"; 
+import styles from "./styles/About.module.css"; 
 
 export default function About() {
   return (
