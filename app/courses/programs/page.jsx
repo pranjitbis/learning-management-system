@@ -1,6 +1,5 @@
 import Image from 'next/image';
 import styles from "./Programs.module.css";
-import heroImage from '../../../public/';
 
 export default function Programs() {
   const programs = [
@@ -16,7 +15,6 @@ export default function Programs() {
   return (
     <main className={styles.container}>
       <div className={styles.hero}>
-        <Image src={heroImage} alt="Our Programs" fill className={styles.heroImage} />
         <div className={styles.heroContent}>
           <h1>Transformative Learning Programs</h1>
           <p>Designed specifically for college students and early-career professionals</p>
