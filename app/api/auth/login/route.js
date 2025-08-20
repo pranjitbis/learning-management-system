@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { sign } from "jsonwebtoken";
 import bcrypt from "bcryptjs";
-import prisma from "../../../lib/prisma";
+import prisma from '@/lib/prisma';
 
 const ADMIN_EMAIL = "pra";
 const ADMIN_PASSWORD = "pra";
@@ -10,24 +10,38 @@ export async function POST(req) {
   try {
     const { email, password } = await req.json();
 
+    // Validate input
+    if (!email || !password) {
+      return NextResponse.json({ error: "Email and password are required" }, { status: 400 });
+    }
+
     // Admin login
     if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
       const token = sign(
-        { userId: "admin", email: ADMIN_EMAIL, role: "ADMIN" },
+        { 
+          userId: "admin", 
+          email: ADMIN_EMAIL, 
+          role: "ADMIN" 
+        },
         process.env.NEXTAUTH_SECRET,
         { expiresIn: "7d" }
       );
 
       const response = NextResponse.json({
         message: "Admin login successful",
-        user: { name: "Admin", email: ADMIN_EMAIL },
+        user: { 
+          id: "admin", 
+          name: "Admin", 
+          email: ADMIN_EMAIL,
+          role: "ADMIN" 
+        },
         role: "ADMIN",
       });
 
       response.cookies.set("lms_token", token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
-        sameSite: "strict",
+        sameSite: "lax", // Changed from strict to lax for better compatibility
         maxAge: 7 * 24 * 60 * 60,
         path: "/",
       });
@@ -37,12 +51,23 @@ export async function POST(req) {
 
     // Regular user login
     const user = await prisma.user.findUnique({
-      where: { email },
-      select: { id: true, name: true, email: true, password: true, role: true },
+      where: { email: email.toLowerCase() },
+      select: { 
+        id: true, 
+        name: true, 
+        email: true, 
+        password: true, 
+        role: true 
+      },
     });
 
     if (!user) {
       return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
+    }
+
+    // Check if user has a password (might be social login user)
+    if (!user.password) {
+      return NextResponse.json({ error: "Please use social login or reset password" }, { status: 401 });
     }
 
     const isValid = await bcrypt.compare(password, user.password);
@@ -51,28 +76,41 @@ export async function POST(req) {
     }
 
     const token = sign(
-      { userId: user.id, email: user.email, role: user.role },
+      { 
+        userId: user.id, 
+        email: user.email, 
+        role: user.role || "USER" 
+      },
       process.env.NEXTAUTH_SECRET,
       { expiresIn: "7d" }
     );
 
     const response = NextResponse.json({
       message: "Login successful",
-      user: { id: user.id, name: user.name, email: user.email },
-      role: user.role,
+      user: { 
+        id: user.id, 
+        name: user.name, 
+        email: user.email,
+        role: user.role || "USER" 
+      },
+      role: user.role || "USER",
     });
 
     response.cookies.set("lms_token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
+      sameSite: "lax",
       maxAge: 7 * 24 * 60 * 60,
       path: "/",
     });
 
     return response;
+
   } catch (err) {
-    console.error(err);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    console.error("Login error:", err);
+    return NextResponse.json({ 
+      error: "Internal server error",
+      details: process.env.NODE_ENV === 'development' ? err.message : undefined
+    }, { status: 500 });
   }
 }

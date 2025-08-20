@@ -1,21 +1,27 @@
 import { NextResponse } from "next/server";
 import { verify } from "jsonwebtoken";
-import prisma from '@/lib/prisma'; // Use your existing Prisma client
+import prisma from '@/lib/prisma';
 
-// Helper: Verify JWT token with better error handling
-async function verifyToken(req) {
+// Helper: Verify JWT token from headers (for API routes)
+async function verifyAPIToken(request) {
   try {
-    const authHeader = req.headers.get("authorization");
-    
-    // Debug log to see what's being received
-    console.log("Auth header:", authHeader);
+    const authHeader = request.headers.get("authorization");
     
     if (!authHeader) {
-      console.log("No authorization header");
+      // Check if we have user info from middleware
+      const userId = request.headers.get('x-user-id');
+      const userRole = request.headers.get('x-user-role');
+      const userEmail = request.headers.get('x-user-email');
+      
+      if (userId && userRole && userEmail) {
+        return { userId, role: userRole, email: userEmail };
+      }
+      
+      console.log("No authorization header or user headers");
       return null;
     }
 
-    // Handle different token formats
+    // Extract token
     let token;
     if (authHeader.startsWith("Bearer ")) {
       token = authHeader.substring(7).trim();
@@ -23,32 +29,27 @@ async function verifyToken(req) {
       token = authHeader.trim();
     }
 
-    // Check if token is empty or malformed
-    if (!token || token === "null" || token === "undefined" || token.split('.').length !== 3) {
-      console.log("Invalid token format:", token);
+    if (!token || token === "null" || token === "undefined") {
+      console.log("Invalid token format");
       return null;
     }
 
     // Verify the token
     const decoded = verify(token, process.env.NEXTAUTH_SECRET);
-    console.log("Token verified for user:", decoded.userId);
     return decoded;
     
   } catch (err) {
-    console.error("Token verification error:", err.message);
+    console.error("API Token verification error:", err.message);
     return null;
   }
 }
 
 /**
- * POST - Admin creates new course with YouTube videos
+ * POST - Admin creates new course
  */
-export async function POST(req) {
+export async function POST(request) {
   try {
-    const decoded = await verifyToken(req);
-    
-    // Debug log
-    console.log("Decoded token:", decoded);
+    const decoded = await verifyAPIToken(request);
     
     if (!decoded) {
       return NextResponse.json({ error: "Authentication required" }, { status: 401 });
@@ -58,7 +59,7 @@ export async function POST(req) {
       return NextResponse.json({ error: "Admin privileges required" }, { status: 403 });
     }
 
-    const body = await req.json();
+    const body = await request.json();
     const { title, description, price, category, thumbnail, videos } = body;
 
     // Validation
@@ -70,15 +71,9 @@ export async function POST(req) {
       return NextResponse.json({ error: "Videos array is required" }, { status: 400 });
     }
 
-    // Validate video URLs
     const videosData = videos.map((v, index) => {
       if (!v.url || typeof v.url !== "string") {
         throw new Error(`Video at index ${index} is missing a valid 'url' string`);
-      }
-      
-      // Basic YouTube URL validation
-      if (!v.url.includes('youtube.com/') && !v.url.includes('youtu.be/')) {
-        console.warn(`Video ${index + 1} may not be a valid YouTube URL: ${v.url}`);
       }
       
       return {
@@ -89,7 +84,6 @@ export async function POST(req) {
       };
     });
 
-    // Create course in DB
     const course = await prisma.course.create({
       data: {
         title,
@@ -107,8 +101,7 @@ export async function POST(req) {
   } catch (err) {
     console.error("Error creating course:", err);
     return NextResponse.json({ 
-      error: err.message || "Failed to create course",
-      details: process.env.NODE_ENV === 'development' ? err.stack : undefined
+      error: err.message || "Failed to create course"
     }, { status: 500 });
   }
 }
@@ -116,11 +109,9 @@ export async function POST(req) {
 /**
  * GET - Fetch all courses
  */
-export async function GET(req) {
+export async function GET(request) {
   try {
-    const decoded = await verifyToken(req);
-    
-    console.log("Fetching courses, user authenticated:", !!decoded);
+    const decoded = await verifyAPIToken(request);
 
     const courses = await prisma.course.findMany({
       orderBy: { createdAt: "desc" },
@@ -144,8 +135,7 @@ export async function GET(req) {
   } catch (err) {
     console.error("Error fetching courses:", err);
     return NextResponse.json({ 
-      error: "Failed to fetch courses",
-      details: process.env.NODE_ENV === 'development' ? err.message : undefined
+      error: "Failed to fetch courses"
     }, { status: 500 });
   }
 }
@@ -153,9 +143,9 @@ export async function GET(req) {
 /**
  * DELETE - Admin deletes a course
  */
-export async function DELETE(req) {
+export async function DELETE(request) {
   try {
-    const decoded = await verifyToken(req);
+    const decoded = await verifyAPIToken(request);
     
     if (!decoded) {
       return NextResponse.json({ error: "Authentication required" }, { status: 401 });
@@ -165,7 +155,7 @@ export async function DELETE(req) {
       return NextResponse.json({ error: "Admin privileges required" }, { status: 403 });
     }
 
-    const { searchParams } = new URL(req.url);
+    const { searchParams } = new URL(request.url);
     const id = searchParams.get("id");
     
     if (!id) {
@@ -173,8 +163,6 @@ export async function DELETE(req) {
     }
 
     const courseId = parseInt(id);
-    
-    // Verify course exists
     const course = await prisma.course.findUnique({ 
       where: { id: courseId }, 
       include: { videos: true } 
@@ -184,7 +172,6 @@ export async function DELETE(req) {
       return NextResponse.json({ error: "Course not found" }, { status: 404 });
     }
 
-    // Delete related data in transaction
     await prisma.$transaction([
       prisma.userVideoProgress.deleteMany({ 
         where: { videoId: { in: course.videos.map((v) => v.id) } } 
@@ -201,8 +188,7 @@ export async function DELETE(req) {
   } catch (err) {
     console.error("Error deleting course:", err);
     return NextResponse.json({ 
-      error: "Failed to delete course",
-      details: process.env.NODE_ENV === 'development' ? err.message : undefined
+      error: "Failed to delete course"
     }, { status: 500 });
   }
 }
