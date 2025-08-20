@@ -1,4 +1,4 @@
-import styles from './Process.module.css';
+import styles from '@/components/Process/Process.module.css';
 
 export default function Process() {
   const steps = [
