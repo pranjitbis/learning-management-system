@@ -107,6 +107,60 @@ export default function AdminUsersPage() {
     }
   };
 
+  // MISSING FUNCTION: Handle granting course access
+  const handleGrantAccess = async (userId, courseId) => {
+    if (!courseId) return;
+    
+    setGrantingAccess({ userId, courseId });
+    
+    try {
+      const res = await fetch("/api/access", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId, courseId }),
+      });
+
+      if (!res.ok) throw new Error("Failed to grant access");
+
+      // Refresh user data to show updated access
+      const usersRes = await fetch("/api/users?includeAccess=true");
+      if (usersRes.ok) {
+        const usersData = await usersRes.json();
+        setUsers(usersData);
+      }
+      
+      setError(null);
+    } catch (err) {
+      alert(err.message);
+    } finally {
+      setGrantingAccess(null);
+    }
+  };
+
+  // MISSING FUNCTION: Handle removing course access
+  const handleRemoveAccess = async (userId, accessId) => {
+    if (!window.confirm("Are you sure you want to remove this course access?")) return;
+    
+    try {
+      const res = await fetch(`/api/user-access?id=${accessId}`, {
+        method: "DELETE",
+      });
+
+      if (!res.ok) throw new Error("Failed to remove access");
+
+      // Refresh user data to show updated access
+      const usersRes = await fetch("/api/users?includeAccess=true");
+      if (usersRes.ok) {
+        const usersData = await usersRes.json();
+        setUsers(usersData);
+      }
+      
+      setError(null);
+    } catch (err) {
+      alert(err.message);
+    }
+  };
+
   const toggleUserExpansion = (userId) => {
     setExpandedUser(expandedUser === userId ? null : userId);
   };
@@ -128,6 +182,7 @@ export default function AdminUsersPage() {
         </button>
       </div>
     );
+
   return (
     <div className={styles.adminContainer}>
       {/* Header Section */}
