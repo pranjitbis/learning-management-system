@@ -1,22 +1,23 @@
-// scripts/create-admin.js
+// scripts/create-proper-admin.js
 import { hash } from 'bcryptjs';
-import prisma from '../lib/prisma.js';
+import { PrismaClient } from '@prisma/client';
 
-async function createAdminUser() {
+const prisma = new PrismaClient();
+
+async function createProperAdmin() {
   try {
     const adminEmail = 'pra';
     const adminPassword = 'pra';
     
-    // Check if admin already exists
-    const existingAdmin = await prisma.user.findFirst({
+    console.log('🔍 Checking for existing admin...');
+    
+    // Delete any existing user with this email to avoid conflicts
+    await prisma.user.deleteMany({
       where: { email: adminEmail }
-    });
+    }).catch(() => {}); // Ignore errors if user doesn't exist
 
-    if (existingAdmin) {
-      console.log('Admin user already exists');
-      return;
-    }
-
+    console.log('👤 Creating new admin user...');
+    
     // Hash password
     const hashedPassword = await hash(adminPassword, 12);
 
@@ -30,13 +31,20 @@ async function createAdminUser() {
       }
     });
 
-    console.log('Admin user created successfully:', adminUser);
+    console.log('🎉 Admin user created successfully!');
+    console.log('📧 Email:', adminUser.email);
+    console.log('👤 Name:', adminUser.name);
+    console.log('🎯 Role:', adminUser.role);
+    console.log('🆔 ID:', adminUser.id);
+    console.log('\n✅ Please log in with:');
+    console.log('   Email: pra');
+    console.log('   Password: pra');
     
   } catch (error) {
-    console.error('Error creating admin user:', error);
+    console.error('❌ Error creating admin user:', error.message);
   } finally {
     await prisma.$disconnect();
   }
 }
 
-createAdminUser();
+createProperAdmin();

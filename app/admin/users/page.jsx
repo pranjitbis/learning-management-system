@@ -1,9 +1,19 @@
-'use client';
+"use client";
 import { useEffect, useState } from "react";
-import { FiUserPlus, FiTrash2, FiX, FiCheck, FiUser, FiLock, FiMail, FiSave, FiEdit, FiChevronDown, FiSearch } from "react-icons/fi";
+import {
+  FiUserPlus,
+  FiTrash2,
+  FiX,
+  FiUser,
+  FiLock,
+  FiMail,
+  FiSave,
+  FiSearch,
+  FiRefreshCw,
+} from "react-icons/fi";
 import { FaUserShield, FaUserGraduate, FaEllipsisV } from "react-icons/fa";
 import { RiShieldUserLine } from "react-icons/ri";
-import styles from './users.module.css';
+import styles from "./users.module.css";
 
 export default function AdminUsersPage() {
   const [users, setUsers] = useState([]);
@@ -28,16 +38,9 @@ export default function AdminUsersPage() {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem("lms_token");
-      if (!token) throw new Error("Authentication required");
-
       const [usersRes, coursesRes] = await Promise.all([
-        fetch("/api/users?includeAccess=true", {
-          headers: { Authorization: `Bearer ${token}` },
-        }),
-        fetch("/api/courses", {
-          headers: { Authorization: `Bearer ${token}` },
-        }),
+        fetch("/api/users?includeAccess=true"),
+        fetch("/api/courses"),
       ]);
 
       if (!usersRes.ok) throw new Error("Failed to fetch users");
@@ -48,6 +51,7 @@ export default function AdminUsersPage() {
 
       setUsers(usersData);
       setCourses(coursesData);
+      setError(null);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -55,9 +59,10 @@ export default function AdminUsersPage() {
     }
   };
 
-  const filteredUsers = users.filter(user => 
-    user.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-    user.email.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredUsers = users.filter(
+    (user) =>
+      user.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.email?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const handleAddUser = async () => {
@@ -69,10 +74,7 @@ export default function AdminUsersPage() {
     try {
       const res = await fetch("/api/users", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("lms_token")}`,
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(newUser),
       });
 
@@ -80,12 +82,14 @@ export default function AdminUsersPage() {
         alert("Email already registered.");
         return;
       }
+
       if (!res.ok) throw new Error("Failed to add user");
 
       const addedUser = await res.json();
       setUsers((prev) => [...prev, addedUser]);
       setNewUser({ name: "", email: "", password: "", role: "USER" });
       setShowAddForm(false);
+      setError(null);
     } catch (err) {
       alert(err.message);
     }
@@ -94,69 +98,10 @@ export default function AdminUsersPage() {
   const handleDeleteUser = async (id) => {
     if (!window.confirm("Are you sure you want to delete this user?")) return;
     try {
-      const res = await fetch(`/api/users?id=${id}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("lms_token")}`,
-        },
-      });
+      const res = await fetch(`/api/users?id=${id}`, { method: "DELETE" });
       if (!res.ok) throw new Error("Failed to delete user");
       setUsers((prev) => prev.filter((u) => u.id !== id));
-    } catch (err) {
-      alert(err.message);
-    }
-  };
-
-  const handleGrantAccess = async (userId, courseId) => {
-    if (!courseId) return;
-    setGrantingAccess({ userId, courseId });
-    try {
-      const course = courses.find((c) => c.id === courseId);
-      const res = await fetch("/api/access", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("lms_token")}`,
-        },
-        body: JSON.stringify({
-          userId,
-          courseId,
-          courseTitle: course.title,
-          approved: true,
-        }),
-      });
-      if (!res.ok) throw new Error("Failed to grant access");
-      const data = await res.json();
-
-      setUsers((prev) =>
-        prev.map((u) =>
-          u.id === userId ? { ...u, access: [...(u.access || []), data] } : u
-        )
-      );
-    } catch (err) {
-      alert(err.message);
-    } finally {
-      setGrantingAccess(null);
-    }
-  };
-
-  const handleRemoveAccess = async (userId, accessId) => {
-    if (!window.confirm("Remove access from this course?")) return;
-    try {
-      const res = await fetch(`/api/access?id=${accessId}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("lms_token")}`,
-        },
-      });
-      if (!res.ok) throw new Error("Failed to remove access");
-      setUsers((prev) =>
-        prev.map((u) =>
-          u.id === userId
-            ? { ...u, access: u.access.filter((a) => a.id !== accessId) }
-            : u
-        )
-      );
+      setError(null);
     } catch (err) {
       alert(err.message);
     }
@@ -166,27 +111,74 @@ export default function AdminUsersPage() {
     setExpandedUser(expandedUser === userId ? null : userId);
   };
 
-  if (loading) return <div className={styles.loadingContainer}><div className={styles.loadingSpinner}></div></div>;
-  if (error) return <div className={styles.errorContainer}>{error}</div>;
+  const handleGrantAccess = async (userId, courseId) => {
+    if (!courseId) return;
 
+    try {
+      setGrantingAccess({ userId });
+
+      const res = await fetch("/api/users", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "grantAccess", userId, courseId }),
+      });
+
+      if (!res.ok) throw new Error("Failed to grant access");
+
+      const updatedUser = await res.json();
+
+      setUsers((prev) => prev.map((u) => (u.id === userId ? updatedUser : u)));
+    } catch (err) {
+      alert(err.message);
+    } finally {
+      setGrantingAccess(null);
+    }
+  };
+
+  if (loading)
+    return (
+      <div className={styles.loadingContainer}>
+        <FiRefreshCw className={styles.loadingSpinner} />
+        <p>Loading users...</p>
+      </div>
+    );
+
+  if (error)
+    return (
+      <div className={styles.errorContainer}>
+        <p>{error}</p>
+        <button onClick={fetchData} className={styles.retryButton}>
+          <FiRefreshCw /> Retry
+        </button>
+      </div>
+    );
   return (
     <div className={styles.adminContainer}>
       {/* Header Section */}
       <div className={styles.header}>
         <div className={styles.headerLeft}>
           <h1 className={styles.title}>
-            <RiShieldUserLine className={styles.titleIcon} /> 
+            <RiShieldUserLine className={styles.titleIcon} />
             <span>User Management</span>
           </h1>
-          <p className={styles.subtitle}>Manage all system users and their access</p>
+          <p className={styles.subtitle}>
+            Manage all system users and their access
+          </p>
         </div>
         <div className={styles.headerRight}>
           <button
             className={`${styles.button} ${styles.primaryButton}`}
             onClick={() => setShowAddForm(!showAddForm)}
           >
-            <FiUserPlus className={styles.buttonIcon} /> 
-            {showAddForm ? 'Cancel' : 'Add User'}
+            <FiUserPlus className={styles.buttonIcon} />
+            {showAddForm ? "Cancel" : "Add User"}
+          </button>
+          <button
+            className={`${styles.button} ${styles.secondaryButton}`}
+            onClick={fetchData}
+          >
+            <FiRefreshCw className={styles.buttonIcon} />
+            Refresh
           </button>
         </div>
       </div>
@@ -209,7 +201,9 @@ export default function AdminUsersPage() {
             <span className={styles.statLabel}>Total Users</span>
           </div>
           <div className={styles.statCard}>
-            <span className={styles.statNumber}>{users.filter(u => u.role === 'ADMIN').length}</span>
+            <span className={styles.statNumber}>
+              {users.filter((u) => u.role === "ADMIN").length}
+            </span>
             <span className={styles.statLabel}>Admins</span>
           </div>
         </div>
@@ -221,60 +215,72 @@ export default function AdminUsersPage() {
           <h3 className={styles.formTitle}>Add New User</h3>
           <div className={styles.formGrid}>
             <div className={styles.formGroup}>
-              <label className={styles.formLabel}>Full Name</label>
+              <label className={styles.formLabel}>Full Name *</label>
               <div className={styles.inputWithIcon}>
                 <FiUser className={styles.inputIcon} />
                 <input
                   type="text"
                   placeholder="John Doe"
                   value={newUser.name}
-                  onChange={(e) => setNewUser({ ...newUser, name: e.target.value })}
+                  onChange={(e) =>
+                    setNewUser({ ...newUser, name: e.target.value })
+                  }
                   className={styles.formInput}
                 />
               </div>
             </div>
-            
+
             <div className={styles.formGroup}>
-              <label className={styles.formLabel}>Email</label>
+              <label className={styles.formLabel}>Email *</label>
               <div className={styles.inputWithIcon}>
                 <FiMail className={styles.inputIcon} />
                 <input
                   type="email"
                   placeholder="user@example.com"
                   value={newUser.email}
-                  onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
+                  onChange={(e) =>
+                    setNewUser({ ...newUser, email: e.target.value })
+                  }
                   className={styles.formInput}
                 />
               </div>
             </div>
-            
+
             <div className={styles.formGroup}>
-              <label className={styles.formLabel}>Password</label>
+              <label className={styles.formLabel}>Password *</label>
               <div className={styles.inputWithIcon}>
                 <FiLock className={styles.inputIcon} />
                 <input
                   type="password"
                   placeholder="••••••••"
                   value={newUser.password}
-                  onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
+                  onChange={(e) =>
+                    setNewUser({ ...newUser, password: e.target.value })
+                  }
                   className={styles.formInput}
                 />
               </div>
             </div>
-            
+
             <div className={styles.formGroup}>
               <label className={styles.formLabel}>Role</label>
               <div className={styles.roleSelector}>
                 <button
-                  className={`${styles.roleButton} ${newUser.role === 'USER' ? styles.activeRole : ''}`}
-                  onClick={() => setNewUser({ ...newUser, role: 'USER' })}
+                  className={`${styles.roleButton} ${
+                    newUser.role === "USER" ? styles.activeRole : ""
+                  }`}
+                  onClick={() => setNewUser({ ...newUser, role: "USER" })}
+                  type="button"
                 >
                   <FaUserGraduate className={styles.roleIcon} />
                   <span>Standard User</span>
                 </button>
                 <button
-                  className={`${styles.roleButton} ${newUser.role === 'ADMIN' ? styles.activeRole : ''}`}
-                  onClick={() => setNewUser({ ...newUser, role: 'ADMIN' })}
+                  className={`${styles.roleButton} ${
+                    newUser.role === "ADMIN" ? styles.activeRole : ""
+                  }`}
+                  onClick={() => setNewUser({ ...newUser, role: "ADMIN" })}
+                  type="button"
                 >
                   <FaUserShield className={styles.roleIcon} />
                   <span>Administrator</span>
@@ -282,12 +288,18 @@ export default function AdminUsersPage() {
               </div>
             </div>
           </div>
-          
+
           <div className={styles.formActions}>
-            <button className={`${styles.button} ${styles.secondaryButton}`} onClick={() => setShowAddForm(false)}>
+            <button
+              className={`${styles.button} ${styles.secondaryButton}`}
+              onClick={() => setShowAddForm(false)}
+            >
               Cancel
             </button>
-            <button className={`${styles.button} ${styles.primaryButton}`} onClick={handleAddUser}>
+            <button
+              className={`${styles.button} ${styles.primaryButton}`}
+              onClick={handleAddUser}
+            >
               <FiSave className={styles.buttonIcon} /> Create User
             </button>
           </div>
@@ -299,79 +311,101 @@ export default function AdminUsersPage() {
         <div className={styles.tableHeader}>
           <div className={styles.tableRow}>
             <div className={`${styles.tableCell} ${styles.cellUser}`}>User</div>
-            <div className={`${styles.tableCell} ${styles.cellEmail}`}>Email</div>
+            <div className={`${styles.tableCell} ${styles.cellEmail}`}>
+              Email
+            </div>
             <div className={`${styles.tableCell} ${styles.cellRole}`}>Role</div>
-            <div className={`${styles.tableCell} ${styles.cellAccess}`}>Access</div>
-            <div className={`${styles.tableCell} ${styles.cellActions}`}>Actions</div>
+            <div className={`${styles.tableCell} ${styles.cellAccess}`}>
+              Access
+            </div>
+            <div className={`${styles.tableCell} ${styles.cellActions}`}>
+              Actions
+            </div>
           </div>
         </div>
-        
+
         <div className={styles.tableBody}>
           {filteredUsers.length > 0 ? (
             filteredUsers.map((user) => (
-              <div key={user.id} className={`${styles.tableRow} ${styles.tableRowItem}`}>
+              <div
+                key={user.id}
+                className={`${styles.tableRow} ${styles.tableRowItem}`}
+              >
                 <div className={`${styles.tableCell} ${styles.cellUser}`}>
                   <div className={styles.userAvatar}>
-                    {user.role === 'ADMIN' ? (
+                    {user.role === "ADMIN" ? (
                       <FaUserShield className={styles.avatarIconAdmin} />
                     ) : (
                       <FaUserGraduate className={styles.avatarIconUser} />
                     )}
                   </div>
                   <div className={styles.userInfo}>
-                    <span className={styles.userName}>{user.name}</span>
+                    <span className={styles.userName}>
+                      {user.name || "No Name"}
+                    </span>
                     <span className={styles.userId}>ID: {user.id}</span>
                   </div>
                 </div>
-                
+
                 <div className={`${styles.tableCell} ${styles.cellEmail}`}>
                   <span className={styles.emailText}>{user.email}</span>
                 </div>
-                
+
                 <div className={`${styles.tableCell} ${styles.cellRole}`}>
-                  <span className={`${styles.roleBadge} ${
-                    user.role === 'ADMIN' ? styles.roleAdmin : styles.roleUser
-                  }`}>
+                  <span
+                    className={`${styles.roleBadge} ${
+                      user.role === "ADMIN" ? styles.roleAdmin : styles.roleUser
+                    }`}
+                  >
                     {user.role}
                   </span>
                 </div>
-                
+
                 <div className={`${styles.tableCell} ${styles.cellAccess}`}>
-                  <span className={styles.accessCount}>{user.access?.length || 0} courses</span>
+                  <span className={styles.accessCount}>
+                    {user.access?.length || 0} courses
+                  </span>
                 </div>
-                
+
                 <div className={`${styles.tableCell} ${styles.cellActions}`}>
                   <div className={styles.actionsContainer}>
-                    <button 
+                    <button
                       className={styles.moreButton}
                       onClick={() => toggleUserExpansion(user.id)}
                     >
                       <FaEllipsisV />
                     </button>
-                    
+
                     {expandedUser === user.id && (
                       <div className={styles.expandedActions}>
                         <div className={styles.actionDropdown}>
                           <div className={styles.actionHeader}>
                             <h4>Manage User</h4>
-                            <button 
+                            <button
                               className={styles.closeDropdown}
                               onClick={() => setExpandedUser(null)}
                             >
                               <FiX />
                             </button>
                           </div>
-                          
+
                           <div className={styles.actionContent}>
                             <div className={styles.actionSection}>
                               <h5>Course Access</h5>
                               <select
                                 className={styles.accessSelect}
-                                onChange={(e) => handleGrantAccess(user.id, parseInt(e.target.value))}
+                                onChange={(e) =>
+                                  handleGrantAccess(
+                                    user.id,
+                                    parseInt(e.target.value)
+                                  )
+                                }
                                 defaultValue=""
                                 disabled={grantingAccess?.userId === user.id}
                               >
-                                <option value="">Select course to grant access</option>
+                                <option value="">
+                                  Select course to grant access
+                                </option>
                                 {courses.map((course) => (
                                   <option key={course.id} value={course.id}>
                                     {course.title}
@@ -384,17 +418,24 @@ export default function AdminUsersPage() {
                                 </div>
                               )}
                             </div>
-                            
+
                             {user.access?.length > 0 && (
                               <div className={styles.actionSection}>
                                 <h5>Current Access</h5>
                                 <ul className={styles.accessList}>
                                   {user.access.map((access) => (
-                                    <li key={access.id} className={styles.accessItem}>
-                                      <span>{access.name}</span>
+                                    <li
+                                      key={access.id}
+                                      className={styles.accessItem}
+                                    >
+                                      <span>
+                                        {access.course?.title || access.name}
+                                      </span>
                                       <button
                                         className={styles.removeAccessButton}
-                                        onClick={() => handleRemoveAccess(user.id, access.id)}
+                                        onClick={() =>
+                                          handleRemoveAccess(user.id, access.id)
+                                        }
                                       >
                                         <FiX />
                                       </button>
@@ -403,9 +444,9 @@ export default function AdminUsersPage() {
                                 </ul>
                               </div>
                             )}
-                            
+
                             <div className={styles.actionButtons}>
-                              <button 
+                              <button
                                 className={`${styles.button} ${styles.dangerButton} ${styles.smallButton}`}
                                 onClick={() => handleDeleteUser(user.id)}
                               >

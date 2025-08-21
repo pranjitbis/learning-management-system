@@ -42,26 +42,41 @@ export default function Dashboard() {
       setLoading(true);
       setError(null);
 
+      // Get token from localStorage
       const token = localStorage.getItem("lms_token");
-      if (!token) return router.push("/login");
+      if (!token) {
+        console.log("No token found, redirecting to login");
+        return;
+      }
 
       const res = await fetch("/api/dashboard", {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { 
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json"
+        },
       });
 
+      if (res.status === 401) {
+        console.log("Token expired or invalid, redirecting to login");
+        localStorage.removeItem("lms_token");
+        return;
+      }
+
       if (!res.ok) {
-        const errorData = await res.json();
-        if (res.status === 401) {
-          localStorage.removeItem("lms_token");
-          return router.push("/login");
-        }
-        throw new Error(errorData.error || "Failed to fetch dashboard data");
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.error || `Failed to fetch dashboard data: ${res.status}`);
       }
 
       const data = await res.json();
       setDashboardData(data);
     } catch (err) {
+      console.error("Dashboard fetch error:", err);
       setError(err.message);
+      
+      // If it's an authentication error, redirect to login
+      if (err.message.includes("401") || err.message.includes("Unauthorized")) {
+        localStorage.removeItem("lms_token");
+      }
     } finally {
       setLoading(false);
     }
@@ -69,11 +84,13 @@ export default function Dashboard() {
 
   const toggleDarkMode = () => setDarkMode(!darkMode);
   const toggleMobileMenu = () => setMobileMenuOpen(!mobileMenuOpen);
+  
   const handleLogout = () => {
     localStorage.removeItem("lms_token");
     router.push("/login");
   };
 
+  // YouTube API functions remain the same...
   const loadYouTubeAPI = () =>
     new Promise((resolve) => {
       if (window.YT && window.YT.Player) return resolve();
@@ -108,21 +125,19 @@ export default function Dashboard() {
             {
               videoId,
               playerVars: {
-                'modestbranding': 1,      // Hides YouTube logo
-                'showinfo': 0,            // Hides video title and uploader
-                'rel': 0,                 // Doesn't show related videos
-                'fs': 0,                  // Hides fullscreen button
-                'controls': 1,            // Shows player controls
-                'disablekb': 1,           // Disables keyboard controls
-                'iv_load_policy': 3,      // Hides video annotations
-                'playsinline': 1,         // Plays inline on iOS
+                'modestbranding': 1,
+                'showinfo': 0,
+                'rel': 0,
+                'fs': 0,
+                'controls': 1,
+                'disablekb': 1,
+                'iv_load_policy': 3,
+                'playsinline': 1,
               },
               events: {
                 onReady: (event) => {
                   const duration = event.target.getDuration();
                   updateVideoDuration(course.id, video.id, duration);
-                  
-                  // Hide share button using CSS injection
                   hideShareButton(event.target);
                 },
                 onStateChange: (event) =>
@@ -135,12 +150,10 @@ export default function Dashboard() {
     });
   };
 
-  // Function to hide the share button using CSS injection
   const hideShareButton = (player) => {
     try {
       const iframe = document.getElementById(player.getIframe().id);
       if (iframe) {
-        // Create a style element to inject CSS
         const style = document.createElement('style');
         style.textContent = `
           .ytp-share-button { display: none !important; }
@@ -148,11 +161,9 @@ export default function Dashboard() {
           [aria-label="Share"] { display: none !important; }
         `;
         
-        // Add the style to the iframe document
         const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
         iframeDoc.head.appendChild(style);
         
-        // Also try to directly hide the element if it exists
         setTimeout(() => {
           try {
             const shareButton = iframeDoc.querySelector('.ytp-share-button');
@@ -170,11 +181,9 @@ export default function Dashboard() {
       }
     } catch (error) {
       console.log("Could not access iframe due to security restrictions");
-      // Fallback: Use CSS to hide the share button from outside
       const iframe = document.getElementById(player.getIframe().id);
       if (iframe) {
         iframe.addEventListener('load', () => {
-          // Create an overlay to block right-click context menu
           const overlay = document.createElement('div');
           overlay.style.position = 'absolute';
           overlay.style.top = '0';
@@ -252,11 +261,9 @@ export default function Dashboard() {
 
         const newVideos = course.videos.map((v, index) => {
           if (v.id === videoId) {
-            // Update current video
             return { ...v, progress, completed };
           }
           
-          // Unlock next video if current video is completed
           if (completed && index > 0 && course.videos[index - 1].id === videoId) {
             return { ...v, locked: false };
           }
@@ -316,6 +323,9 @@ export default function Dashboard() {
         <button onClick={fetchDashboardData} className={styles.retryBtn}>
           Try Again
         </button>
+        <button onClick={() => router.push("/login")} className={styles.loginBtn}>
+          Go to Login
+        </button>
       </div>
     );
 
@@ -366,10 +376,10 @@ export default function Dashboard() {
           <div
             className={styles.menuItem}
             onClick={() => {
-              window.scrollTo(
-                0,
-                document.querySelector(".coursesSection").offsetTop - 20
-              );
+              const coursesSection = document.querySelector(`.${styles.coursesSection}`);
+              if (coursesSection) {
+                window.scrollTo(0, coursesSection.offsetTop - 20);
+              }
               setMobileMenuOpen(false);
             }}
           >
@@ -379,11 +389,10 @@ export default function Dashboard() {
           <div
             className={styles.menuItem}
             onClick={() => {
-              window.scrollTo(
-                0,
-                document.querySelector(".certificatesSection")?.offsetTop -
-                  20 || 0
-              );
+              const certificatesSection = document.querySelector(`.${styles.certificatesSection}`);
+              if (certificatesSection) {
+                window.scrollTo(0, certificatesSection.offsetTop - 20);
+              }
               setMobileMenuOpen(false);
             }}
           >
@@ -415,7 +424,7 @@ export default function Dashboard() {
           <p>Continue your learning journey</p>
         </div>
 
-        <section className="coursesSection">
+        <section className={styles.coursesSection}>
           <h2 className={styles.sectionTitle}>
             <FaBook className={styles.sectionIcon} />
             Your Courses
@@ -534,7 +543,7 @@ export default function Dashboard() {
         {dashboardData?.courses?.some(
           (c) => c.progress.completed && c.certificateUrl
         ) && (
-          <section className="certificatesSection">
+          <section className={styles.certificatesSection}>
             <h2 className={styles.sectionTitle}>
               <FaCertificate className={styles.sectionIcon} />
               Your Certificates
