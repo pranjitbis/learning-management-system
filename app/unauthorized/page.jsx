@@ -2,14 +2,25 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { FaLock, FaArrowLeft, FaHome, FaSignInAlt } from 'react-icons/fa';
 import styles from "./courses.module.css";
+
 export default function Unauthorized() {
   const [countdown, setCountdown] = useState(10);
+  const [fromPath, setFromPath] = useState('');
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const fromPath = searchParams.get('from') || '/dashboard';
+
+  useEffect(() => {
+    // Get the 'from' parameter from the URL
+    if (typeof window !== 'undefined') {
+      const searchParams = new URLSearchParams(window.location.search);
+      const from = searchParams.get('from');
+      if (from) {
+        setFromPath(from);
+      }
+    }
+  }, []);
 
   useEffect(() => {
     // Countdown timer for automatic redirect
