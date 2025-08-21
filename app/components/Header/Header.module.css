@@ -1,28 +1,42 @@
-  .header {
+/* Header.module.css */
+.header {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   z-index: 1000;
-  background-color: var(--header-bg);
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  background-color: var(--bg-primary);
+  backdrop-filter: blur(10px);
+  box-shadow: var(--shadow-sm);
   transition: all 0.3s ease;
-  background-color: white;
-  padding: 20px 0px;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.header.scrolled {
+  padding: 0.5rem 0;
+  box-shadow: var(--shadow-md);
+  background-color: var(--bg-primary);
 }
 
 .headerContainer {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1rem 2rem;
-  height: 70px;
+  padding: 0 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 .logo {
   display: flex;
   align-items: center;
   z-index: 1001;
+  transition: all 0.3s ease;
+}
+
+.logo:hover {
+  opacity: 0.8;
 }
 
 .navToggle {
@@ -31,33 +45,65 @@
   border: none;
   cursor: pointer;
   z-index: 1001;
+  padding: 0.5rem;
+  color: var(--text-primary);
 }
 
+/* Hamburger Menu Styles */
 .hamburger {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  width: 24px;
-  height: 18px;
+  display: inline-block;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  padding: 0.5rem;
 }
 
-.hamburger span {
-  display: block;
+.hamburgerBox {
+  width: 24px;
+  height: 24px;
+  display: inline-block;
+  position: relative;
+}
+
+.hamburgerInner {
   width: 100%;
   height: 2px;
-  background-color: var(--text-color);
-  transition: all 0.3s ease;
+  background-color: var(--text-primary);
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  transition: background-color 0.3s 0.1s ease;
 }
 
-.hamburger.open span:nth-child(1) {
+.hamburgerInner::before,
+.hamburgerInner::after {
+  content: '';
+  width: 100%;
+  height: 2px;
+  background-color: var(--text-primary);
+  position: absolute;
+  left: 0;
+  transition: transform 0.3s 0.1s ease;
+}
+
+.hamburgerInner::before {
+  top: -8px;
+}
+
+.hamburgerInner::after {
+  top: 8px;
+}
+
+/* Open/Close Animation */
+.hamburger.open .hamburgerInner {
+  background-color: transparent;
+}
+
+.hamburger.open .hamburgerInner::before {
   transform: translateY(8px) rotate(45deg);
 }
 
-.hamburger.open span:nth-child(2) {
-  opacity: 0;
-}
-
-.hamburger.open span:nth-child(3) {
+.hamburger.open .hamburgerInner::after {
   transform: translateY(-8px) rotate(-45deg);
 }
 
@@ -65,29 +111,40 @@
   display: flex;
   align-items: center;
   gap: 2rem;
+  transition: all 0.3s ease;
+}
+
+.nav {
+  display: flex;
 }
 
 .navList {
   display: flex;
   gap: 1.5rem;
   list-style: none;
+  margin: 0;
+  padding: 0;
 }
 
 .navLink {
-  color: var(--text-color);
+  color: var(--text-primary);
   text-decoration: none;
   font-weight: 500;
   padding: 0.5rem 0;
   position: relative;
-  transition: color 0.3s ease;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.95rem;
 }
 
 .navLink:hover {
-  color: var(--primary-color);
+  color: var(--primary);
 }
 
 .navLink.active {
-  color: var(--primary-color);
+  color: var(--primary);
 }
 
 .navLink.active::after {
@@ -97,11 +154,29 @@
   left: 0;
   width: 100%;
   height: 2px;
-  background-color: var(--primary-color);
+  background-color: var(--primary);
+  border-radius: var(--radius-sm);
 }
 
 .dropdown {
   position: relative;
+}
+
+.dropdownToggle {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+}
+
+.dropdownChevron {
+  transition: transform 0.3s ease;
+}
+
+.dropdownChevron.rotated {
+  transform: rotate(180deg);
 }
 
 .dropdownContent {
@@ -109,34 +184,38 @@
   top: 100%;
   left: 0;
   min-width: 200px;
-  background-color: rgb(255, 255, 255);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-  border-radius: 8px;
-  padding: 1rem;
+  background-color: var(--bg-primary);
+  backdrop-filter: blur(10px);
+  box-shadow: var(--shadow-lg);
+  border-radius: var(--radius-md);
+  padding: 0.5rem 0;
   opacity: 0;
   visibility: hidden;
   transform: translateY(10px);
   transition: all 0.3s ease;
   z-index: 1000;
+  border: 1px solid var(--border);
 }
 
-.dropdown:hover .dropdownContent {
+.dropdownContent.show {
   opacity: 1;
   visibility: visible;
   transform: translateY(0);
 }
 
-.dropdownContent a {
+.dropdownLink {
   display: block;
-  padding: 0.5rem 0;
-  color: var(--text-color);
+  padding: 0.5rem 1.5rem;
+  color: var(--text-primary);
   text-decoration: none;
-  transition: color 0.3s ease;
+  transition: all 0.3s ease;
+  font-size: 0.9rem;
 }
 
-.dropdownContent a:hover,
-.dropdownContent a.active {
-  color: var(--primary-color);
+.dropdownLink:hover,
+.dropdownLink.active {
+  color: var(--primary);
+  background-color: var(--bg-secondary);
 }
 
 .headerActions {
@@ -145,64 +224,67 @@
   gap: 1rem;
 }
 
-.btnLogin,
-.btnRegister {
+.btn {
   padding: 0.5rem 1rem;
-  border-radius: 6px;
+  border-radius: var(--radius-md);
   font-weight: 500;
   text-decoration: none;
   transition: all 0.3s ease;
+  font-size: 0.9rem;
 }
 
 .btnLogin {
-  color: var(--text-color);
-  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+  background: transparent;
 }
 
 .btnLogin:hover,
 .btnLogin.active {
-  background-color: var(--hover-bg);
+  background-color: var(--bg-secondary);
+  border-color: var(--primary);
+  color: var(--primary);
 }
 
 .btnRegister {
-  background-color: var(--primary-color);
+  background-color: var(--primary);
   color: white;
+  border: 1px solid var(--primary);
 }
 
 .btnRegister:hover,
 .btnRegister.active {
   background-color: var(--primary-dark);
+  border-color: var(--primary-dark);
 }
 
-.themeButton {
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: var(--text-color);
-  font-size: 1.2rem;
-  padding: 0.5rem;
-}
 
+
+
+
+
+/* Mobile styles */
 @media (max-width: 992px) {
+  .headerContainer {
+    padding: 0 1rem;
+  }
+  
   .navToggle {
     display: block;
   }
-
-
   
   .navWrapper {
     position: fixed;
-    top: 70px;
+    top: 0;
     left: 0;
     width: 100%;
-    height: calc(100vh - 70px);
-    background-color: var(--mobile-menu-bg);
+    height: 100vh;
+    background-color: var(--bg-primary);
     flex-direction: column;
-    justify-content: flex-start;
+    justify-content: center;
     padding: 2rem;
     transform: translateX(100%);
     transition: transform 0.3s ease;
-    background-color: white;
   }
   
   .navWrapper.active {
@@ -212,6 +294,8 @@
   .navList {
     flex-direction: column;
     width: 100%;
+    text-align: center;
+    gap: 1.5rem;
   }
   
   .dropdownContent {
@@ -220,30 +304,89 @@
     visibility: visible;
     transform: none;
     box-shadow: none;
-    padding: 0.5rem 1rem;
     background-color: transparent;
+    border: none;
+    margin-top: 0.5rem;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+  }
+  
+  .dropdownContent.show {
+    max-height: 300px;
+  }
+  
+  .dropdownLink {
+    padding: 0.5rem 1rem;
   }
   
   .headerActions {
     margin-top: 2rem;
     width: 100%;
     justify-content: center;
+    flex-direction: column;
+    gap: 1rem;
   }
-  .dropdownContent {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  min-width: 200px;
-  background-color: rgb(255, 255, 255);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-  border-radius: 8px;
-  padding: 1rem;
-  opacity: 0;
-  visibility: hidden;
-  transform: translateY(10px);
-  transition: all 0.3s ease;
-  z-index: 1000;
+  
+  .btn {
+    width: 100%;
+    text-align: center;
+    padding: 0.75rem 1rem;
+  }
 }
 
-}  
+/* Dark theme specific adjustments */
+[data-theme="dark"] .header {
+  background-color: var(--surface);
+  border-bottom-color: var(--border);
+}
 
+[data-theme="dark"] .dropdownContent {
+  background-color: var(--surface);
+  border-color: var(--border);
+}
+
+[data-theme="dark"] .navLink:hover,
+[data-theme="dark"] .navLink.active {
+  color: var(--primary);
+}
+
+[data-theme="dark"] .dropdownLink:hover,
+[data-theme="dark"] .dropdownLink.active {
+  background-color: var(--background);
+}
+
+[data-theme="dark"] .btnLogin {
+  color: var(--text);
+  border-color: var(--border);
+}
+
+[data-theme="dark"] .btnLogin:hover {
+  background-color: var(--background);
+  color: var(--primary);
+}
+
+
+/* Reduced motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .header,
+  .hamburger,
+  .hamburgerInner,
+  .hamburgerInner::before,
+  .hamburgerInner::after,
+  .dropdownContent,
+  .navWrapper,
+  .themeIcon,
+  .logo,
+  .navLink,
+  .btn {
+    transition: none;
+  }
+  
+  .hamburger.open .hamburgerInner::before,
+  .hamburger.open .hamburgerInner::after {
+    transition: none;
+  }
+  
+ 
+}

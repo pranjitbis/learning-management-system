@@ -10,6 +10,8 @@ import styles from './Header.module.css';
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [activeDropdown, setActiveDropdown] = useState(null);
   const pathname = usePathname();
 
   const toggleMenu = () => {
@@ -19,20 +21,47 @@ export default function Header() {
   const toggleTheme = () => {
     const newMode = !isDarkMode;
     setIsDarkMode(newMode);
+    
+    // Update data-theme attribute and localStorage
     document.documentElement.setAttribute('data-theme', newMode ? 'dark' : 'light');
     localStorage.setItem('theme', newMode ? 'dark' : 'light');
+    
+    // Update body background color
+    document.body.style.backgroundColor = newMode ? 'var(--background)' : 'var(--bg-primary)';
+  };
+
+  const toggleDropdown = (dropdownName) => {
+    if (activeDropdown === dropdownName) {
+      setActiveDropdown(null);
+    } else {
+      setActiveDropdown(dropdownName);
+    }
   };
 
   useEffect(() => {
     // Check for saved theme preference
     const savedTheme = localStorage.getItem('theme') || 'light';
-    setIsDarkMode(savedTheme === 'dark');
+    const isDark = savedTheme === 'dark';
+    setIsDarkMode(isDark);
     document.documentElement.setAttribute('data-theme', savedTheme);
+    
+    // Set initial body background color
+    document.body.style.backgroundColor = isDark ? 'var(--background)' : 'var(--bg-primary)';
+    document.body.style.transition = 'background-color 0.3s ease';
+
+    // Handle scroll event for sticky header
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 10);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   // Close mobile menu when route changes
   useEffect(() => {
     setIsMenuOpen(false);
+    setActiveDropdown(null);
   }, [pathname]);
 
   const isActive = (href) => {
@@ -41,7 +70,7 @@ export default function Header() {
   };
 
   return (
-    <header className={styles.header}>
+    <header className={`${styles.header} ${isScrolled ? styles.scrolled : ''}`}>
       <div className={`container ${styles.headerContainer}`}>
         <Link href="/" className={styles.logo}>
           <Image 
@@ -57,16 +86,17 @@ export default function Header() {
           className={styles.navToggle}
           aria-label="Toggle navigation"
           onClick={toggleMenu}
+          aria-expanded={isMenuOpen}
         >
           <span className={`${styles.hamburger} ${isMenuOpen ? styles.open : ''}`}>
-            <span></span>
-            <span></span>
-            <span></span>
+            <span className={styles.hamburgerBox}>
+              <span className={styles.hamburgerInner}></span>
+            </span>
           </span>
         </button>
         
         <div className={`${styles.navWrapper} ${isMenuOpen ? styles.active : ''}`}>
-          <nav>
+          <nav className={styles.nav}>
             <ul className={styles.navList}>
               <li>
                 <Link 
@@ -78,25 +108,39 @@ export default function Header() {
               </li>
               
               <li className={styles.dropdown}>
-                <span className={`${styles.navLink} ${pathname.startsWith('/courses') ? styles.active : ''}`}>
-                  Courses <i className="fas fa-chevron-down"></i>
-                </span>
-                <div className={styles.dropdownContent}>
+                <button 
+                  className={`${styles.navLink} ${styles.dropdownToggle} ${pathname.startsWith('/courses') ? styles.active : ''}`}
+                  onClick={() => toggleDropdown('courses')}
+                  aria-expanded={activeDropdown === 'courses'}
+                >
+                  Courses
+                  <svg 
+                    className={`${styles.dropdownChevron} ${activeDropdown === 'courses' ? styles.rotated : ''}`} 
+                    width="16" 
+                    height="16" 
+                    viewBox="0 0 24 24" 
+                    fill="none" 
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path d="M6 9L12 15L18 9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </button>
+                <div className={`${styles.dropdownContent} ${activeDropdown === 'courses' ? styles.show : ''}`}>
                   <Link 
                     href="/courses/web-development" 
-                    className={isActive('/courses/web-development') ? styles.active : ''}
+                    className={`${styles.dropdownLink} ${isActive('/courses/web-development') ? styles.active : ''}`}
                   >
                     Web Development
                   </Link>
                   <Link 
                     href="/courses/data-science" 
-                    className={isActive('/courses/data-science') ? styles.active : ''}
+                    className={`${styles.dropdownLink} ${isActive('/courses/data-science') ? styles.active : ''}`}
                   >
                     Data Science
                   </Link>
                   <Link 
                     href="/courses/cyber-security" 
-                    className={isActive('/courses/cyber-security') ? styles.active : ''}
+                    className={`${styles.dropdownLink} ${isActive('/courses/cyber-security') ? styles.active : ''}`}
                   >
                     Cyber Security
                   </Link>
@@ -133,23 +177,17 @@ export default function Header() {
           <div className={styles.headerActions}>
             <Link 
               href="/login" 
-              className={`${styles.btnLogin} ${isActive('/login') ? styles.active : ''}`}
+              className={`${styles.btn} ${styles.btnLogin} ${isActive('/login') ? styles.active : ''}`}
             >
               Sign In
             </Link>
             <Link 
               href="/register" 
-              className={`${styles.btnRegister} ${isActive('/register') ? styles.active : ''}`}
+              className={`${styles.btn} ${styles.btnRegister} ${isActive('/register') ? styles.active : ''}`}
             >
               Register
             </Link>
-            <button
-              className={styles.themeButton}
-              aria-label="Toggle theme"
-              onClick={toggleTheme}
-            >
-              <i className={`fas ${isDarkMode ? 'fa-sun' : 'fa-moon'}`}></i>
-            </button>
+           
           </div>
         </div>
       </div>

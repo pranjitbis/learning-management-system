@@ -1,26 +1,21 @@
-import Link from 'next/link';
-import Image from 'next/image';
-import styles from './Footer.module.css';
-
+import Link from "next/link";
+import Image from "next/image";
+import styles from "./Footer.module.css";
+import logo from "../../../public/logo/Elenxia_Colored_NoTag.svg";
 export default function Page() {
   return (
     <footer className={styles.footer}>
       <div className={styles.footerContainer}>
         <div className={styles.footerColumn}>
           <Link href="/" className={`${styles.logo} ${styles.homeLinkLogo}`}>
-            <Image 
-              src="/images/Elenxia_Web_Logo_Color.png" 
-              alt="Elenxia Logo" 
-              width={150} 
-              height={50} 
-            />
+            <Image src={logo} alt="Elenxia Logo" width={150} height={50} />
           </Link>
           <p>
             Skills are honed through experience, but true mastery comes from a
             thirst for knowledge and a commitment to continuous learning.
           </p>
         </div>
-        
+
         <div className={styles.footerColumn}>
           <h4>Contact Info</h4>
           <ul>
@@ -47,7 +42,7 @@ export default function Page() {
               </a>
             </li>
           </ul>
-          
+
           <div className={styles.footerSocials}>
             <a
               href="https://www.linkedin.com/company/elenxia-com?trk=blended-typeahead"
@@ -75,7 +70,7 @@ export default function Page() {
             </a>
           </div>
         </div>
-        
+
         <div className={styles.footerColumn}>
           <h4>Office Hours</h4>
           <ul>
@@ -84,20 +79,34 @@ export default function Page() {
             <li>Sun: 24 Hrs Open</li>
           </ul>
         </div>
-        
+
         <div className={styles.footerColumn}>
           <h4>Useful Links</h4>
           <ul>
-            <li><Link href="/about" id="footer-about-link">About</Link></li>
             <li>
-              <Link href="/campus-ambassador" id="campus-ambassador-link">Campus Ambassador</Link>
+              <Link href="/about" id="footer-about-link">
+                About
+              </Link>
             </li>
-            <li><Link href="/terms" id="terms-link">Terms & Conditions</Link></li>
-            <li><Link href="/privacy-policy" id="privacy-policy-link">Privacy Policy</Link></li>
+            <li>
+              <Link href="/campus-ambassador" id="campus-ambassador-link">
+                Campus Ambassador
+              </Link>
+            </li>
+            <li>
+              <Link href="/terms" id="terms-link">
+                Terms & Conditions
+              </Link>
+            </li>
+            <li>
+              <Link href="/privacy-policy" id="privacy-policy-link">
+                Privacy Policy
+              </Link>
+            </li>
           </ul>
         </div>
       </div>
-      
+
       <div className={styles.footerBottom}>
         <p>© 2025 Elenxia. All rights reserved.</p>
       </div>
