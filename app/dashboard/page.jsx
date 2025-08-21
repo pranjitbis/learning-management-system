@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
@@ -30,12 +30,25 @@ export default function Dashboard() {
   const intervalRefs = useRef({});
   const router = useRouter();
 
-  const formatDuration = (seconds) => {
-    if (!seconds || isNaN(seconds)) return "--:--";
-    const mins = Math.floor(seconds / 60);
-    const secs = Math.floor(seconds % 60);
-    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  // Check if user is authenticated
+  const isAuthenticated = () => {
+    // Check for token in both localStorage and cookies
+    if (typeof window !== 'undefined') {
+      const token = localStorage.getItem("lms_token");
+      return !!token;
+    }
+    return false;
   };
+
+  useEffect(() => {
+    // Redirect to login if not authenticated
+    if (!isAuthenticated()) {
+      router.push('/login?from=/dashboard');
+      return;
+    }
+
+    fetchDashboardData();
+  }, [router]);
 
   const fetchDashboardData = async () => {
     try {
@@ -46,6 +59,7 @@ export default function Dashboard() {
       const token = localStorage.getItem("lms_token");
       if (!token) {
         console.log("No token found, redirecting to login");
+        router.push('/login?from=/dashboard');
         return;
       }
 
@@ -59,6 +73,7 @@ export default function Dashboard() {
       if (res.status === 401) {
         console.log("Token expired or invalid, redirecting to login");
         localStorage.removeItem("lms_token");
+        router.push('/login?from=/dashboard');
         return;
       }
 
@@ -76,6 +91,7 @@ export default function Dashboard() {
       // If it's an authentication error, redirect to login
       if (err.message.includes("401") || err.message.includes("Unauthorized")) {
         localStorage.removeItem("lms_token");
+        router.push('/login?from=/dashboard');
       }
     } finally {
       setLoading(false);

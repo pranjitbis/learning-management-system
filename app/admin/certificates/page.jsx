@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import styles from "./certificates.module.css";
 import {
   FaFileUpload,
@@ -24,6 +25,14 @@ export default function AdminCertificatesPage() {
   const clickData = () => {
     setShow(!show);
   };
+
+  const router = useRouter();
+
+  const handleUnauthorized = () => {
+    router.push("/unauthorized");
+    return;
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true);
@@ -41,16 +50,19 @@ export default function AdminCertificatesPage() {
   const fetchUsers = async () => {
     const res = await fetch("/api/users");
     if (res.ok) setUsers(await res.json());
+    else if (res.status === 401) handleUnauthorized();
   };
 
   const fetchCourses = async () => {
     const res = await fetch("/api/courses");
     if (res.ok) setCourses(await res.json());
+    else if (res.status === 401) handleUnauthorized();
   };
 
   const fetchCertificates = async () => {
     const res = await fetch("/api/certificates");
     if (res.ok) setCertificates(await res.json());
+    else if (res.status === 401) handleUnauthorized();
   };
 
   const openForm = (user) => {
@@ -214,7 +226,10 @@ export default function AdminCertificatesPage() {
                                 </div>
                               </div>
                             ) : (
-                              <button className={styles.confrom} onClick={() => clickData()}>
+                              <button
+                                className={styles.confrom}
+                                onClick={() => clickData()}
+                              >
                                 Delete
                               </button>
                             )}

@@ -1,28 +1,24 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import {
   FaBookOpen,
   FaCertificate,
   FaUsers,
-  FaChartLine,
   FaGraduationCap,
   FaVideo,
   FaDollarSign,
   FaEllipsisH,
-  FaSearch,
-  FaBell,
-  FaUserCircle,
 } from "react-icons/fa";
-import { FiMenu, FiX } from "react-icons/fi";
 import styles from "./css/dashboard.module.css";
 
 export default function AdminDashboard() {
+  const router = useRouter();
+
   const [users, setUsers] = useState([]);
   const [courses, setCourses] = useState([]);
   const [certificates, setCertificates] = useState([]);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState("dashboard");
 
   useEffect(() => {
     fetchUsers();
@@ -30,19 +26,27 @@ export default function AdminDashboard() {
     fetchCertificates();
   }, []);
 
+  const handleUnauthorized = () => {
+    localStorage.removeItem("lms_token");
+    router.push("/unauthorized");
+  };
+
   const fetchUsers = async () => {
-    const res = await fetch("/api/users");
+    const res = await fetch("/api/users", { method: "GET" });
     if (res.ok) setUsers(await res.json());
+    if (res.status === 401) handleUnauthorized();
   };
 
   const fetchCourses = async () => {
-    const res = await fetch("/api/courses");
+    const res = await fetch("/api/courses", { method: "GET" });
     if (res.ok) setCourses(await res.json());
+    if (res.status === 401) handleUnauthorized();
   };
 
   const fetchCertificates = async () => {
-    const res = await fetch("/api/certificates");
+    const res = await fetch("/api/certificates", { method: "GET" });
     if (res.ok) setCertificates(await res.json());
+    if (res.status === 401) handleUnauthorized();
   };
 
   const totalCertificates = certificates.filter((c) => c.approved).length;

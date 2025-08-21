@@ -1,13 +1,13 @@
 // prisma/seed.js
-import prisma from './lib/prisma';
+import prisma from '../app/lib/prisma';
 import bcrypt from 'bcryptjs';
 
 async function main() {
-  const passwordHash = await bcrypt.hash('admin123', 10);
+  const passwordHash = await bcrypt.hash('pra', 10);
   await prisma.user.create({
     data: {
       name: 'Admin User',
-      email: 'admin@example.com',
+      email: 'pra',
       password: passwordHash,
       role: 'ADMIN',
     }

@@ -111,30 +111,6 @@ export default function AdminUsersPage() {
     setExpandedUser(expandedUser === userId ? null : userId);
   };
 
-  const handleGrantAccess = async (userId, courseId) => {
-    if (!courseId) return;
-
-    try {
-      setGrantingAccess({ userId });
-
-      const res = await fetch("/api/users", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "grantAccess", userId, courseId }),
-      });
-
-      if (!res.ok) throw new Error("Failed to grant access");
-
-      const updatedUser = await res.json();
-
-      setUsers((prev) => prev.map((u) => (u.id === userId ? updatedUser : u)));
-    } catch (err) {
-      alert(err.message);
-    } finally {
-      setGrantingAccess(null);
-    }
-  };
-
   if (loading)
     return (
       <div className={styles.loadingContainer}>

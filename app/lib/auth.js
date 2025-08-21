@@ -1,35 +1,49 @@
-import jwt from 'jsonwebtoken';
+// lib/auth.js
+import { cookies } from 'next/headers'
+import { redirect } from 'next/navigation'
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your-fallback-secret-key';
+export async function getCurrentUser() {
+  const cookieStore = cookies()
+  const token = cookieStore.get('auth-token')?.value
 
-export async function verifyToken(token) {
+  if (!token) {
+    return null
+  }
+
   try {
-    return jwt.verify(token, JWT_SECRET);
+    // Verify token (replace with your actual authentication logic)
+    const response = await fetch(`${process.env.NEXTAUTH_URL}/api/auth/verify`, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    })
+
+    if (response.ok) {
+      return await response.json()
+    }
+    
+    return null
   } catch (error) {
-    throw new Error('Invalid token');
+    console.error('Auth error:', error)
+    return null
   }
 }
 
-// Helper to get token from request
-export function getTokenFromRequest(request) {
-  const authHeader = request.headers.get('authorization');
-  if (authHeader && authHeader.startsWith('Bearer ')) {
-    return authHeader.substring(7);
-  }
+export async function requireAuth(requiredRole) {
+  const user = await getCurrentUser()
   
-  // Also check cookies as fallback
-  const cookieHeader = request.headers.get('cookie');
-  if (cookieHeader) {
-    const cookies = cookieHeader.split(';').reduce((acc, cookie) => {
-      const [name, value] = cookie.trim().split('=');
-      acc[name] = value;
-      return acc;
-    }, {});
-    
-    if (cookies.lms_token) {
-      return cookies.lms_token;
-    }
+  if (!user) {
+    redirect('/login')
   }
-  
-  return null;
+
+  if (requiredRole && user.role !== requiredRole) {
+    redirect('/unauthorized')
+  }
+
+  return user
+}
+
+export async function logout() {
+  cookies().delete('auth-token')
+  redirect('/login')
 }

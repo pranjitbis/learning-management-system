@@ -1,0 +1,164 @@
+/* app/unauthorized/unauthorized.module.css */
+.unauthorizedContainer {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 20px;
+}
+
+.unauthorizedContent {
+  background: white;
+  border-radius: 12px;
+  padding: 40px;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  max-width: 500px;
+  width: 100%;
+}
+
+.iconContainer {
+  margin-bottom: 20px;
+}
+
+.lockIcon {
+  color: #ff4757;
+}
+
+.title {
+  font-size: 2rem;
+  color: #2d3436;
+  margin-bottom: 15px;
+  font-weight: 700;
+}
+
+.message {
+  color: #636e72;
+  font-size: 1.1rem;
+  margin-bottom: 20px;
+  line-height: 1.5;
+}
+
+.detail {
+  background: #f8f9fa;
+  padding: 10px;
+  border-radius: 6px;
+  margin-bottom: 20px;
+  font-family: 'Monaco', 'Consolas', monospace;
+  font-size: 0.9rem;
+}
+
+.detail code {
+  color: #e17055;
+  font-weight: 500;
+}
+
+.countdown {
+  background: #fff4e6;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 25px;
+  border-left: 4px solid #fd7e14;
+}
+
+.countdown p {
+  color: #e67700;
+  font-weight: 500;
+  margin: 0;
+}
+
+.buttonGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 25px;
+}
+
+.primaryButton, .secondaryButton {
+  padding: 12px 20px;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.primaryButton {
+  background: #4ecdc4;
+  color: white;
+}
+
+.primaryButton:hover {
+  background: #45b7aa;
+  transform: translateY(-2px);
+}
+
+.secondaryButton {
+  background: #f8f9fa;
+  color: #495057;
+  border: 1px solid #dee2e6;
+}
+
+.secondaryButton:hover {
+  background: #e9ecef;
+  transform: translateY(-2px);
+}
+
+.helpSection {
+  border-top: 1px solid #dee2e6;
+  padding-top: 20px;
+}
+
+.helpSection h3 {
+  color: #2d3436;
+  margin-bottom: 10px;
+  font-size: 1.2rem;
+}
+
+.helpSection p {
+  color: #636e72;
+  font-size: 0.95rem;
+  margin-bottom: 15px;
+  line-height: 1.4;
+}
+
+.supportLink {
+  color: #4ecdc4;
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.3s ease;
+}
+
+.supportLink:hover {
+  color: #45b7aa;
+  text-decoration: underline;
+}
+
+/* Responsive design */
+@media (max-width: 600px) {
+  .unauthorizedContainer {
+    padding: 10px;
+  }
+  
+  .unauthorizedContent {
+    padding: 30px 20px;
+  }
+  
+  .title {
+    font-size: 1.5rem;
+  }
+  
+  .message {
+    font-size: 1rem;
+  }
+  
+  .buttonGroup {
+    flex-direction: column;
+  }
+}
