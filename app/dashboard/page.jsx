@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
@@ -32,8 +32,7 @@ export default function Dashboard() {
 
   // Check if user is authenticated
   const isAuthenticated = () => {
-    // Check for token in both localStorage and cookies
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       const token = localStorage.getItem("lms_token");
       return !!token;
     }
@@ -43,7 +42,7 @@ export default function Dashboard() {
   useEffect(() => {
     // Redirect to login if not authenticated
     if (!isAuthenticated()) {
-      router.push('/login?from=/dashboard');
+      router.push("/login?from=/dashboard");
       return;
     }
 
@@ -59,27 +58,29 @@ export default function Dashboard() {
       const token = localStorage.getItem("lms_token");
       if (!token) {
         console.log("No token found, redirecting to login");
-        router.push('/login?from=/dashboard');
+        router.push("/login?from=/dashboard");
         return;
       }
 
       const res = await fetch("/api/dashboard", {
-        headers: { 
+        headers: {
           Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
         },
       });
 
       if (res.status === 401) {
         console.log("Token expired or invalid, redirecting to login");
         localStorage.removeItem("lms_token");
-        router.push('/login?from=/dashboard');
+        router.push("/login?from=/dashboard");
         return;
       }
 
       if (!res.ok) {
         const errorData = await res.json().catch(() => ({}));
-        throw new Error(errorData.error || `Failed to fetch dashboard data: ${res.status}`);
+        throw new Error(
+          errorData.error || `Failed to fetch dashboard data: ${res.status}`
+        );
       }
 
       const data = await res.json();
@@ -87,11 +88,11 @@ export default function Dashboard() {
     } catch (err) {
       console.error("Dashboard fetch error:", err);
       setError(err.message);
-      
+
       // If it's an authentication error, redirect to login
       if (err.message.includes("401") || err.message.includes("Unauthorized")) {
         localStorage.removeItem("lms_token");
-        router.push('/login?from=/dashboard');
+        router.push("/login?from=/dashboard");
       }
     } finally {
       setLoading(false);
@@ -100,124 +101,182 @@ export default function Dashboard() {
 
   const toggleDarkMode = () => setDarkMode(!darkMode);
   const toggleMobileMenu = () => setMobileMenuOpen(!mobileMenuOpen);
-  
+
   const handleLogout = () => {
     localStorage.removeItem("lms_token");
     router.push("/login");
   };
 
-  // YouTube API functions remain the same...
-  const loadYouTubeAPI = () =>
-    new Promise((resolve) => {
-      if (window.YT && window.YT.Player) return resolve();
+  const formatDuration = (seconds) => {
+    if (!seconds || isNaN(seconds)) return "--:--";
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins.toString().padStart(2, "0")}:${secs
+      .toString()
+      .padStart(2, "0")}`;
+  };
+
+  // Improved YouTube ID extraction
+  const getYouTubeId = (url) => {
+    if (!url) return null;
+
+    // Handle embed URLs
+    if (url.includes("youtube.com/embed/")) {
+      return url.split("youtube.com/embed/")[1].split("?")[0];
+    }
+
+    // Handle watch URLs
+    if (url.includes("youtube.com/watch?v=")) {
+      return url.split("v=")[1].split("&")[0];
+    }
+
+    // Handle youtu.be URLs
+    if (url.includes("youtu.be/")) {
+      return url.split("youtu.be/")[1].split("?")[0];
+    }
+
+    // Handle already extracted IDs
+    if (url.length === 11 && !url.includes("/") && !url.includes("?")) {
+      return url;
+    }
+
+    return null;
+  };
+
+  // Improved YouTube API loading
+  const loadYouTubeAPI = () => {
+    return new Promise((resolve) => {
+      if (window.YT && window.YT.Player) {
+        resolve();
+        return;
+      }
+
+      // Check if script is already loading
+      if (
+        document.querySelector(
+          'script[src="https://www.youtube.com/iframe_api"]'
+        )
+      ) {
+        const checkInterval = setInterval(() => {
+          if (window.YT && window.YT.Player) {
+            clearInterval(checkInterval);
+            resolve();
+          }
+        }, 100);
+        return;
+      }
+
       const tag = document.createElement("script");
       tag.src = "https://www.youtube.com/iframe_api";
-      window.onYouTubeIframeAPIReady = () => resolve();
+      tag.onload = () => {
+        // YouTube API doesn't fire onload, so we need to check for YT
+        const checkYT = setInterval(() => {
+          if (window.YT && window.YT.Player) {
+            clearInterval(checkYT);
+            resolve();
+          }
+        }, 100);
+      };
       document.body.appendChild(tag);
     });
-
-  const getYouTubeId = (url) => {
-    const regExp =
-      /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
-    const match = url.match(regExp);
-    return match && match[7].length === 11 ? match[7] : null;
   };
 
   const initPlayers = async () => {
     if (!dashboardData?.courses) return;
-    await loadYouTubeAPI();
 
-    dashboardData.courses.forEach((course) => {
-      course.videos.forEach((video) => {
-        // Only initialize player if video is not locked
-        if (video.locked) return;
-        
-        const videoId = getYouTubeId(video.url);
-        if (!videoId) return;
+    try {
+      await loadYouTubeAPI();
 
-        if (!playerRefs.current[video.id]) {
+      dashboardData.courses.forEach((course) => {
+        course.videos.forEach((video) => {
+          if (video.locked) return;
+
+          const videoId = getYouTubeId(video.url);
+          if (!videoId) return;
+
+          // ⛔ Prevent blinking – do NOT destroy if already exists
+          if (playerRefs.current[video.id]) {
+            return;
+          }
+
+          // Create new player only once
           playerRefs.current[video.id] = new window.YT.Player(
             `video-${video.id}`,
             {
               videoId,
               playerVars: {
-                'modestbranding': 1,
-                'showinfo': 0,
-                'rel': 0,
-                'fs': 0,
-                'controls': 1,
-                'disablekb': 1,
-                'iv_load_policy': 3,
-                'playsinline': 1,
+                modestbranding: 1,
+                rel: 0,
+                fs: 1,
+                controls: 1,
+                playsinline: 1,
+                enablejsapi: 1,
+                origin: window.location.origin,
               },
               events: {
                 onReady: (event) => {
-                  const duration = event.target.getDuration();
-                  updateVideoDuration(course.id, video.id, duration);
-                  hideShareButton(event.target);
+                  try {
+                    const duration = event.target.getDuration();
+                    updateVideoDuration(course.id, video.id, duration);
+                    hideShareButton(event.target);
+                  } catch (e) {
+                    console.error("onReady error:", e);
+                  }
                 },
-                onStateChange: (event) =>
-                  handleVideoStateChange(course.id, video.id, event),
+                onStateChange: (event) => {
+                  handleVideoStateChange(course.id, video.id, event);
+                },
+                onError: (event) => {
+                  console.error("YouTube error:", event.data);
+                },
               },
             }
           );
-        }
+        });
       });
-    });
+    } catch (error) {
+      console.error("Error loading YouTube API:", error);
+    }
   };
 
   const hideShareButton = (player) => {
     try {
       const iframe = document.getElementById(player.getIframe().id);
       if (iframe) {
-        const style = document.createElement('style');
+        // Add CSS to hide share button
+        const style = document.createElement("style");
         style.textContent = `
           .ytp-share-button { display: none !important; }
           .ytp-share-icon { display: none !important; }
-          [aria-label="Share"] { display: none !important; }
         `;
-        
-        const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
-        iframeDoc.head.appendChild(style);
-        
-        setTimeout(() => {
-          try {
-            const shareButton = iframeDoc.querySelector('.ytp-share-button');
-            if (shareButton) shareButton.style.display = 'none';
-            
-            const shareIcon = iframeDoc.querySelector('.ytp-share-icon');
-            if (shareIcon) shareIcon.style.display = 'none';
-            
-            const shareElements = iframeDoc.querySelectorAll('[aria-label="Share"]');
-            shareElements.forEach(el => el.style.display = 'none');
-          } catch (e) {
-            console.log("Could not directly manipulate iframe elements");
-          }
-        }, 1000);
+
+        try {
+          const iframeDoc =
+            iframe.contentDocument || iframe.contentWindow.document;
+          iframeDoc.head.appendChild(style);
+        } catch (e) {
+          // Cross-origin restriction, use overlay method
+          const overlay = document.createElement("div");
+          overlay.style.position = "absolute";
+          overlay.style.top = "0";
+          overlay.style.right = "0";
+          overlay.style.width = "300px";
+          overlay.style.height = "100px";
+          overlay.style.zIndex = "10";
+          overlay.style.background = "transparent";
+          iframe.parentNode.style.position = "relative";
+          iframe.parentNode.appendChild(overlay);
+        }
       }
     } catch (error) {
       console.log("Could not access iframe due to security restrictions");
-      const iframe = document.getElementById(player.getIframe().id);
-      if (iframe) {
-        iframe.addEventListener('load', () => {
-          const overlay = document.createElement('div');
-          overlay.style.position = 'absolute';
-          overlay.style.top = '0';
-          overlay.style.left = '0';
-          overlay.style.width = '100%';
-          overlay.style.height = '100%';
-          overlay.style.zIndex = '10';
-          overlay.style.pointerEvents = 'none';
-          
-          iframe.parentNode.style.position = 'relative';
-          iframe.parentNode.appendChild(overlay);
-        });
-      }
     }
   };
 
   const updateVideoDuration = (courseId, videoId, duration) => {
     setDashboardData((prev) => {
+      if (!prev?.courses) return prev;
+
       const newCourses = prev.courses.map((course) => {
         if (course.id !== courseId) return course;
 
@@ -246,22 +305,31 @@ export default function Dashboard() {
     const player = playerRefs.current[videoId];
     if (!player) return;
 
-    if (intervalRefs.current[videoId])
+    // Clear existing interval
+    if (intervalRefs.current[videoId]) {
       clearInterval(intervalRefs.current[videoId]);
+    }
 
     if (event.data === window.YT.PlayerState.PLAYING) {
       intervalRefs.current[videoId] = setInterval(() => {
-        const duration = player.getDuration();
-        const currentTime = player.getCurrentTime();
-        let progress = Math.floor((currentTime / duration) * 100);
-        const completed =
-          event.data === window.YT.PlayerState.ENDED || progress >= 95;
+        try {
+          const duration = player.getDuration();
+          const currentTime = player.getCurrentTime();
+          let progress = Math.floor((currentTime / duration) * 100);
+          const completed =
+            event.data === window.YT.PlayerState.ENDED || progress >= 95;
 
-        if (completed) progress = 100;
+          if (completed) progress = 100;
 
-        updateVideoProgress(courseId, videoId, progress, completed);
+          updateVideoProgress(courseId, videoId, progress, completed);
 
-        if (completed) clearInterval(intervalRefs.current[videoId]);
+          if (completed) {
+            clearInterval(intervalRefs.current[videoId]);
+          }
+        } catch (e) {
+          console.error("Error in progress tracking:", e);
+          clearInterval(intervalRefs.current[videoId]);
+        }
       }, 1000);
     }
 
@@ -272,6 +340,8 @@ export default function Dashboard() {
 
   const updateVideoProgress = (courseId, videoId, progress, completed) => {
     setDashboardData((prev) => {
+      if (!prev?.courses) return prev;
+
       const newCourses = prev.courses.map((course) => {
         if (course.id !== courseId) return course;
 
@@ -279,11 +349,16 @@ export default function Dashboard() {
           if (v.id === videoId) {
             return { ...v, progress, completed };
           }
-          
-          if (completed && index > 0 && course.videos[index - 1].id === videoId) {
+
+          // Unlock next video if current video is completed
+          if (
+            completed &&
+            index > 0 &&
+            course.videos[index - 1]?.id === videoId
+          ) {
             return { ...v, locked: false };
           }
-          
+
           return v;
         });
 
@@ -311,17 +386,31 @@ export default function Dashboard() {
     fetchDashboardData();
   }, []);
 
+  // Init players once when dashboardData loads
   useEffect(() => {
-    if (dashboardData) initPlayers();
+    if (dashboardData) {
+      initPlayers();
+    }
   }, [dashboardData]);
+
+  // Cleanup ONLY on unmount
+  useEffect(() => {
+    return () => {
+      Object.values(playerRefs.current).forEach((player) => {
+        try {
+          if (player?.destroy) player.destroy();
+        } catch {}
+      });
+
+      Object.values(intervalRefs.current).forEach((interval) => {
+        if (interval) clearInterval(interval);
+      });
+    };
+  }, []);
 
   if (loading)
     return (
-      <div
-        className={`${styles.loadingContainer} ${
-          darkMode ? styles.darkMode : ""
-        }`}
-      >
+      <div className={styles.loadingContainer}>
         <FaSpinner className={styles.spinner} />
         <p>Loading your dashboard...</p>
       </div>
@@ -329,17 +418,16 @@ export default function Dashboard() {
 
   if (error)
     return (
-      <div
-        className={`${styles.errorContainer} ${
-          darkMode ? styles.darkMode : ""
-        }`}
-      >
+      <div className={styles.errorContainer}>
         <h2>Error Loading Dashboard</h2>
         <p>{error}</p>
         <button onClick={fetchDashboardData} className={styles.retryBtn}>
           Try Again
         </button>
-        <button onClick={() => router.push("/login")} className={styles.loginBtn}>
+        <button
+          onClick={() => router.push("/login")}
+          className={styles.loginBtn}
+        >
           Go to Login
         </button>
       </div>
@@ -381,36 +469,21 @@ export default function Dashboard() {
         <nav className={styles.sidebarNav}>
           <div
             className={styles.menuItem}
-            onClick={() => {
-              window.scrollTo(0, 0);
-              setMobileMenuOpen(false);
-            }}
+            onClick={() => setMobileMenuOpen(false)}
           >
             <FaHome className={styles.menuIcon} />
             <span>Dashboard</span>
           </div>
           <div
             className={styles.menuItem}
-            onClick={() => {
-              const coursesSection = document.querySelector(`.${styles.coursesSection}`);
-              if (coursesSection) {
-                window.scrollTo(0, coursesSection.offsetTop - 20);
-              }
-              setMobileMenuOpen(false);
-            }}
+            onClick={() => setMobileMenuOpen(false)}
           >
             <FaBook className={styles.menuIcon} />
             <span>My Courses</span>
           </div>
           <div
             className={styles.menuItem}
-            onClick={() => {
-              const certificatesSection = document.querySelector(`.${styles.certificatesSection}`);
-              if (certificatesSection) {
-                window.scrollTo(0, certificatesSection.offsetTop - 20);
-              }
-              setMobileMenuOpen(false);
-            }}
+            onClick={() => setMobileMenuOpen(false)}
           >
             <FaCertificate className={styles.menuIcon} />
             <span>Certificates</span>
@@ -487,17 +560,21 @@ export default function Dashboard() {
                               <FaPlay className={styles.videoPlayIcon} />
                             )}
                             {video.title}
-                            {video.locked && <span className={styles.lockedBadge}>Locked</span>}
+                            {video.locked && (
+                              <span className={styles.lockedBadge}>Locked</span>
+                            )}
                           </h4>
                           <span className={styles.videoDuration}>
-                            {video.formattedDuration}
+                            {video.formattedDuration || "--:--"}
                           </span>
                         </div>
 
                         {video.locked ? (
                           <div className={styles.lockedOverlay}>
                             <FaLock size={32} />
-                            <p>Complete the previous video to unlock this content</p>
+                            <p>
+                              Complete the previous video to unlock this content
+                            </p>
                           </div>
                         ) : (
                           <>
@@ -505,17 +582,39 @@ export default function Dashboard() {
                               <div
                                 id={`video-${video.id}`}
                                 className={styles.videoPlayer}
-                              />
+                                style={{
+                                  width: "100%",
+                                  height: "440px",
+                                  backgroundColor: "#000",
+                                }}
+                              >
+                                {!playerRefs.current[video.id] && (
+                                  <div
+                                    style={{
+                                      display: "flex",
+                                      alignItems: "center",
+                                      justifyContent: "center",
+                                      height: "100%",
+                                      color: "#fff",
+                                    }}
+                                  >
+                                    <FaSpinner className={styles.spinner} />
+                                    <span style={{ marginLeft: "10px" }}>
+                                      Loading video...
+                                    </span>
+                                  </div>
+                                )}
+                              </div>
                             </div>
 
                             <div className={styles.videoProgress}>
                               <div className={styles.progressBar}>
                                 <div
                                   className={styles.progressFill}
-                                  style={{ width: `${video.progress}%` }}
+                                  style={{ width: `${video.progress || 0}%` }}
                                 />
                               </div>
-                              <span>{video.progress}% Watched</span>
+                              <span>{video.progress || 0}% Watched</span>
                             </div>
                           </>
                         )}
