@@ -18,7 +18,7 @@ export default function CourseCard({ course }) {
         <h3>{course.title}</h3>
         <p>{course.description}</p>
         <div className={styles.cardFooter}>
-          <div className={styles.coursePrice}>₹750</div>
+          <div className={styles.coursePrice}>₹7500</div>
           <Link href={`/courses/${course.id}`}>
             <button className={styles.detailsButton}>View Details</button>
           </Link>
