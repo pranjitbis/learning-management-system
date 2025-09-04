@@ -147,6 +147,14 @@ export default function Header() {
                   Contact
                 </Link>
               </li>
+              <li>
+                <Link
+                  href="/hackathon"
+                  className={`${styles.navLink} ${isActive("/contact") ? styles.active : ""}`}
+                >
+                  Hackathon
+                </Link>
+              </li>
             </ul>
           </nav>
 

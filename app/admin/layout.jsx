@@ -89,6 +89,16 @@ export default function AdminLayout({ children }) {
                 <span>Courses</span>
               </Link>
             </li>
+            <li className={isActive("/admin/hackthon") ? styles.active : ""}>
+              <Link
+                href="/admin/hackthon"
+                className={styles.navLink}
+                onClick={() => setSidebarOpen(false)}
+              >
+                <FaBookOpen className={styles.navIcon} />
+                <span>Hackthon</span>
+              </Link>
+            </li>
             <li
               className={isActive("/admin/certificates") ? styles.active : ""}
             >

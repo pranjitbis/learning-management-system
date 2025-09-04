@@ -1,12 +1,11 @@
-datasource db {
-  provider = "mysql"
-  url      = env("DATABASE_URL")
-}
-
 generator client {
   provider = "prisma-client-js"
 }
 
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
 
 model User {
   id            Int                  @id @default(autoincrement())
@@ -14,12 +13,12 @@ model User {
   email         String               @unique
   password      String
   role          String               @default("USER")
-  certificates  Certificate[]
-  access        Access[]
-  progress      UserCourseProgress[]
-  videoProgress UserVideoProgress[]
   createdAt     DateTime             @default(now())
   updatedAt     DateTime             @updatedAt
+  access        Access[]
+  certificates  Certificate[]
+  progress      UserCourseProgress[]
+  videoProgress UserVideoProgress[]
 }
 
 model Course {
@@ -29,12 +28,12 @@ model Course {
   price        Float
   category     String
   thumbnail    String?
-  videos       Video[]
+  createdAt    DateTime             @default(now())
+  updatedAt    DateTime             @updatedAt
   access       Access[]
   certificates Certificate[]
   progress     UserCourseProgress[]
-  createdAt    DateTime             @default(now())
-  updatedAt    DateTime             @updatedAt
+  videos       Video[]
 }
 
 model Video {
@@ -45,10 +44,12 @@ model Video {
   published         Boolean             @default(true)
   position          Int?                @default(0)
   courseId          Int
-  course            Course              @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  userVideoProgress UserVideoProgress[]
   createdAt         DateTime            @default(now())
   updatedAt         DateTime            @updatedAt
+  userVideoProgress UserVideoProgress[]
+  course            Course              @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@index([courseId], map: "Video_courseId_fkey")
 }
 
 model Access {
@@ -58,11 +59,11 @@ model Access {
   approved    Boolean   @default(false)
   requestedAt DateTime  @default(now())
   grantedAt   DateTime?
-
-  user   User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  course Course? @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  course      Course    @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, courseId])
+  @@index([courseId], map: "Access_courseId_fkey")
 }
 
 model Certificate {
@@ -74,24 +75,26 @@ model Certificate {
   approved  Boolean  @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  user   User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  course Course? @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  @@index([courseId], map: "Certificate_courseId_fkey")
+  @@index([userId], map: "Certificate_userId_fkey")
 }
 
 model UserCourseProgress {
-  id           Int      @id @default(autoincrement())
-  userId       Int
-  courseId     Int
+  id            Int       @id @default(autoincrement())
+  userId        Int
+  courseId      Int
   videosWatched Int
-  totalVideos  Int
-  completed    Boolean
-  completedAt  DateTime?
-
-  user    User?   @relation(fields: [userId], references: [id])
-  course  Course  @relation(fields: [courseId], references: [id])
+  totalVideos   Int
+  completed     Boolean
+  completedAt   DateTime?
+  course        Course    @relation(fields: [courseId], references: [id])
+  user          User      @relation(fields: [userId], references: [id])
 
   @@unique([userId, courseId])
+  @@index([courseId], map: "UserCourseProgress_courseId_fkey")
 }
 
 model UserVideoProgress {
@@ -102,9 +105,17 @@ model UserVideoProgress {
   completed   Boolean   @default(false)
   completedAt DateTime?
   lastUpdated DateTime  @updatedAt
-
-  user  User?  @relation(fields: [userId], references: [id], onDelete: Cascade)
-  video Video  @relation(fields: [videoId], references: [id], onDelete: Cascade)
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  video       Video     @relation(fields: [videoId], references: [id], onDelete: Cascade)
 
   @@unique([userId, videoId])
+  @@index([videoId], map: "UserVideoProgress_videoId_fkey")
+}
+
+model hackthon {
+    completedAt   DateTime?
+    id    Int    @id @default(autoincrement())
+  name  String
+  email String @unique
+    rank        Int?  
 }
