@@ -1,82 +1,266 @@
-.aboutContainer {
-  max-width: 1200px;
-  margin: 150px auto;
-  padding: 2rem 1rem;
-  font-family: Arial, sans-serif;
+/* styles/About.module.css */
+
+.pageSection {
+  min-height: 100vh;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   color: #333;
+  line-height: 1.6;
 }
 
 /* Hero Section */
-.heroSection {
+.pageHero {
+  position: relative;
+  height: 60vh;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   display: flex;
-  gap: 2rem;
+  flex-direction: column;
+  justify-content: center;
   align-items: center;
-  margin-bottom: 4rem;
+  text-align: center;
+  padding: 2rem;
+  color: white;
+}
+
+.btnBack {
+  position: absolute;
+  top: 2rem;
+  left: 2rem;
+  padding: 0.8rem 1.5rem;
+  background-color: rgba(255, 255, 255, 0.2);
+  color: white;
+  text-decoration: none;
+  border-radius: 5px;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.btnBack:hover {
+  background-color: rgba(255, 255, 255, 0.3);
+  transform: translateY(-2px);
+}
+
+.pageHero h1 {
+  font-size: 3.5rem;
+  font-weight: 700;
+  margin-top: 2rem;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+/* About Content */
+.aboutContent {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 4rem 2rem;
+}
+
+.aboutContent blockquote {
+  font-size: 1.4rem;
+  font-style: italic;
+  color: #2c3e50;
+  border-left: 4px solid #3498db;
+  padding-left: 2rem;
+  margin: 2rem 0;
+  line-height: 1.8;
+}
+
+.aboutContent h3 {
+  font-size: 2rem;
+  color: #2c3e50;
+  margin: 2.5rem 0 1rem 0;
+  font-weight: 600;
+}
+
+.aboutContent p {
+  font-size: 1.1rem;
+  margin-bottom: 1.5rem;
+  color: #555;
+  line-height: 1.8;
+}
+
+/* Partners Section */
+.aboutPartners {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 2rem;
+  margin: 3rem 0;
+  padding: 2rem;
+  background-color: #f8f9fa;
+  border-radius: 10px;
+}
+
+.logoItem {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1rem;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+}
+
+.logoItem:hover {
+  transform: translateY(-5px);
+}
+
+.logoImage {
+  object-fit: contain;
+  filter: grayscale(100%);
+  opacity: 0.8;
+  transition: all 0.3s ease;
+}
+
+.logoItem:hover .logoImage {
+  filter: grayscale(0%);
+  opacity: 1;
+}
+
+/* Contact Section */
+.aboutContactSection {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 4rem 2rem;
+  text-align: center;
+}
+
+.sectionTitle {
+  font-size: 2.5rem;
+  margin-bottom: 1.5rem;
+  font-weight: 700;
+}
+
+.aboutContactSection p {
+  font-size: 1.2rem;
+  max-width: 800px;
+  margin: 0 auto 2rem auto;
+  line-height: 1.6;
+}
+
+.btnGroup {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  margin: 2rem 0;
   flex-wrap: wrap;
 }
 
-.textContent {
-  flex: 1;
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem 2rem;
+  text-decoration: none;
+  border-radius: 50px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
 }
 
-.textContent h1 {
-  font-size: 2.5rem;
-  color: #111;
-  margin-bottom: 1rem;
+.btnPrimary {
+  background-color: #fff;
+  color: #667eea;
 }
 
-.textContent p {
-  line-height: 1.7;
-  margin-bottom: 1rem;
-  font-size: 1.05rem;
-  color: #555;
+.btnPrimary:hover {
+  background-color: transparent;
+  color: white;
+  border-color: white;
+  transform: translateY(-2px);
 }
 
-.imageWrapper {
-  flex: 1;
-  position: relative;
-  height: 350px;
-  min-width: 300px;
-  border-radius: 12px;
-  overflow: hidden;
+.btnSecondary {
+  background-color: transparent;
+  color: white;
+  border-color: white;
 }
 
-.aboutImage {
-  object-fit: cover;
+.btnSecondary:hover {
+  background-color: white;
+  color: #667eea;
+  transform: translateY(-2px);
 }
 
-/* Vision Section */
-.visionSection {
-  background: #f9f9ff;
-  padding: 2.5rem;
-  border-radius: 12px;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-}
-
-.visionSection h2 {
-  font-size: 2rem;
-  margin-bottom: 1rem;
-  color: #222;
-}
-
-.visionSection p {
-  font-size: 1.05rem;
-  line-height: 1.7;
-  margin-bottom: 1rem;
-  color: #555;
+.disclaimer {
+  font-size: 0.9rem;
+  opacity: 0.9;
+  max-width: 600px;
+  margin: 2rem auto 0 auto;
+  font-style: italic;
 }
 
 /* Responsive Design */
 @media (max-width: 768px) {
-  .heroSection {
-    flex-direction: column;
+  .pageHero {
+    height: 50vh;
+    padding: 1rem;
   }
-
-  .textContent h1 {
+  
+  .pageHero h1 {
+    font-size: 2.5rem;
+  }
+  
+  .btnBack {
+    top: 1rem;
+    left: 1rem;
+    padding: 0.6rem 1rem;
+    font-size: 0.9rem;
+  }
+  
+  .aboutContent {
+    padding: 2rem 1rem;
+  }
+  
+  .aboutContent blockquote {
+    font-size: 1.2rem;
+    padding-left: 1rem;
+  }
+  
+  .aboutContent h3 {
+    font-size: 1.8rem;
+  }
+  
+  .aboutPartners {
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+    padding: 1rem;
+  }
+  
+  .btnGroup {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .btn {
+    padding: 0.8rem 1.5rem;
+    font-size: 0.9rem;
+  }
+  
+  .sectionTitle {
     font-size: 2rem;
   }
+  
+  .aboutContactSection p {
+    font-size: 1rem;
+  }
+}
 
-  .imageWrapper {
-    height: 250px;
+@media (max-width: 480px) {
+  .pageHero h1 {
+    font-size: 2rem;
+  }
+  
+  .aboutContent blockquote {
+    font-size: 1.1rem;
+  }
+  
+  .aboutContent h3 {
+    font-size: 1.5rem;
+  }
+  
+  .aboutPartners {
+    grid-template-columns: repeat(2, 1fr);
   }
 }

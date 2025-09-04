@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { FaBars, FaTimes } from "react-icons/fa"; // ✅ react-icons
+import { FaBars, FaTimes } from "react-icons/fa";
 import logo from "../../../public/logo/Elenxia_Colored_NoTag.svg";
 import styles from "./Header.module.css";
 
@@ -60,7 +60,7 @@ export default function Header() {
           <Image src={logo} alt="Elenxia Logo" width={150} height={45} priority />
         </Link>
 
-        {/* ✅ React Icons instead of custom spans */}
+        {/* Mobile menu toggle button */}
         <button
           className={styles.navToggle}
           aria-label="Toggle navigation"
@@ -80,7 +80,7 @@ export default function Header() {
                 </Link>
               </li>
 
-              {/* Dropdown Example */}
+              {/* Courses Dropdown */}
               <li className={styles.dropdown}>
                 <button
                   className={`${styles.navLink} ${styles.dropdownToggle} ${
@@ -125,10 +125,10 @@ export default function Header() {
 
               <li>
                 <Link
-                  href="/programs"
-                  className={`${styles.navLink} ${isActive("/programs") ? styles.active : ""}`}
+                  href="/terms-conditions"
+                  className={`${styles.navLink} ${isActive("/terms-conditions") ? styles.active : ""}`}
                 >
-                  Programs
+                  Terms & Conditions
                 </Link>
               </li>
               <li>
@@ -150,7 +150,7 @@ export default function Header() {
               <li>
                 <Link
                   href="/hackathon"
-                  className={`${styles.navLink} ${isActive("/contact") ? styles.active : ""}`}
+                  className={`${styles.navLink} ${isActive("/hackathon") ? styles.active : ""}`}
                 >
                   Hackathon
                 </Link>

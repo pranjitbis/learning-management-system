@@ -332,6 +332,12 @@
   .headerContainer {
     padding: 0 1rem;
   }
+  .header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+}
 
   .navToggle {
     display: block;
@@ -341,7 +347,7 @@
     position: fixed;
     top: 0;
     right: 0;
-    width: 80%;
+    width: 100%;
     max-width: 400px;
     height: 100vh;
     background-color: var(--bg-primary);
@@ -376,7 +382,7 @@
     max-height: 0;
     overflow: hidden;
     transition: max-height 0.3s ease;
-    padding-left: 1rem;
+    padding-left: 2rem;
   }
 
   .dropdownContent.show {
