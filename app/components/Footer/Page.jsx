@@ -94,15 +94,11 @@ export default function Page() {
               </Link>
             </li>
             <li>
-              <Link href="/terms" id="terms-link">
+              <Link href="/terms-conditions" id="terms-link">
                 Terms & Conditions
               </Link>
             </li>
-            <li>
-              <Link href="/privacy-policy" id="privacy-policy-link">
-                Privacy Policy
-              </Link>
-            </li>
+  
           </ul>
         </div>
       </div>
