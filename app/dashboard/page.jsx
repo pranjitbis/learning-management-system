@@ -212,13 +212,18 @@ export default function Dashboard() {
                 playsinline: 1,
                 enablejsapi: 1,
                 origin: window.location.origin,
+                // Remove share button and three dots
+                showinfo: 0,
+                iv_load_policy: 3,
+                modestbranding: 1,
               },
               events: {
                 onReady: (event) => {
                   try {
                     const duration = event.target.getDuration();
                     updateVideoDuration(course.id, video.id, duration);
-                    hideShareButton(event.target);
+                    // Hide YouTube controls that we don't want
+                    hideYouTubeControls(event.target);
                   } catch (e) {
                     console.error("onReady error:", e);
                   }
@@ -239,15 +244,29 @@ export default function Dashboard() {
     }
   };
 
-  const hideShareButton = (player) => {
+  // Function to hide YouTube controls
+  const hideYouTubeControls = (player) => {
     try {
+      // This approach uses CSS injection to hide unwanted elements
       const iframe = document.getElementById(player.getIframe().id);
       if (iframe) {
-        // Add CSS to hide share button
+        // Add CSS to hide share button and three dots menu
         const style = document.createElement("style");
         style.textContent = `
-          .ytp-share-button { display: none !important; }
-          .ytp-share-icon { display: none !important; }
+          .ytp-share-button, 
+          .ytp-share-icon, 
+          .ytp-button.ytp-share-button,
+          .ytp-button.ytp-copylink-button,
+          .ytp-button.ytp-youtube-button,
+          .ytp-chrome-top-buttons .ytp-button[aria-label="Share"],
+          .ytp-button[title="Share"],
+          .ytp-button[aria-label="More actions"],
+          .ytp-button[title="More actions"] {
+            display: none !important;
+            visibility: hidden !important;
+            opacity: 0 !important;
+            pointer-events: none !important;
+          }
         `;
 
         try {
@@ -255,13 +274,13 @@ export default function Dashboard() {
             iframe.contentDocument || iframe.contentWindow.document;
           iframeDoc.head.appendChild(style);
         } catch (e) {
-          // Cross-origin restriction, use overlay method
+          // Cross-origin restriction - use overlay method
           const overlay = document.createElement("div");
           overlay.style.position = "absolute";
           overlay.style.top = "0";
           overlay.style.right = "0";
-          overlay.style.width = "300px";
-          overlay.style.height = "100px";
+          overlay.style.width = "100px";
+          overlay.style.height = "50px";
           overlay.style.zIndex = "10";
           overlay.style.background = "transparent";
           iframe.parentNode.style.position = "relative";
@@ -583,8 +602,6 @@ export default function Dashboard() {
                                 id={`video-${video.id}`}
                                 className={styles.videoPlayer}
                                 style={{
-                                  width: "100%",
-                                  height: "440px",
                                   backgroundColor: "#000",
                                 }}
                               >

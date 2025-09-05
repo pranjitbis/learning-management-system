@@ -943,68 +943,68 @@
 /* Responsive Adjustments */
 @media (max-width: 768px) {
   .certificatesPanel {
-    width: 100%;
-    right: -100%;
+  width: 100%;
+  right: -100%;
   }
 
   .contentShifted {
-    margin-right: 0;
+  margin-right: 0;
   }
 }
 
 /* Responsive Styles */
 @media (max-width: 1024px) {
   .sidebar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    z-index: 1000;
-    transform: translateX(-100%);
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  z-index: 1000;
+  transform: translateX(-100%);
   }
 
   .sidebarOpen {
-    transform: translateX(0);
+  transform: translateX(0);
   }
 
   .mobileHeader {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   }
 
   #darkModeToggle {
-    position: relative;
-    top: 30px;
-    right: 20px;
+  position: relative;
+  top: 30px;
+  right: 20px;
   }
 
   .mainContent {
-    padding: 1rem;
-    margin-top: 60px;
+  padding: 1rem;
+  margin-top: 60px;
   }
 
   .coursesGrid {
-    grid-template-columns: 1fr;
+  grid-template-columns: 1fr;
   }
   .cancelBtn {
-    position: absolute;
-    left: 83%;
-    top: 3%;
-    font-size: 30px;
-    color: red;
-    cursor: pointer;
-    display: block;
+  position: absolute;
+  left: 83%;
+  top: 3%;
+  font-size: 30px;
+  color: red;
+  cursor: pointer;
+  display: block;
   }
 }
 
 @media (max-width: 768px) {
   .contentHeader h1 {
-    font-size: 1.5rem;
+  font-size: 1.5rem;
   }
 
   .sectionTitle {
-    font-size: 1.25rem;
+  font-size: 1.25rem;
   }
 }
 
