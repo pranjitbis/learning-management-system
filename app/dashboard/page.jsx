@@ -204,19 +204,17 @@ export default function Dashboard() {
             `video-${video.id}`,
             {
               videoId,
-              playerVars: {
-                modestbranding: 1,
-                rel: 0,
-                fs: 1,
-                controls: 1,
-                playsinline: 1,
-                enablejsapi: 1,
-                origin: window.location.origin,
-                // Remove share button and three dots
-                showinfo: 0,
-                iv_load_policy: 3,
-                modestbranding: 1,
-              },
+          playerVars: {
+  fs: 0,               // Disable fullscreen
+  modestbranding: 1,    // Minimal branding
+  rel: 0,               // No related videos
+  controls: 0,          // 🚀 Hide controls & title/link
+  playsinline: 1,       
+  enablejsapi: 1,
+  origin: window.location.origin,
+  iv_load_policy: 3,    // Hide annotations
+  widget_referrer: window.location.href,
+},
               events: {
                 onReady: (event) => {
                   try {
@@ -243,54 +241,44 @@ export default function Dashboard() {
       console.error("Error loading YouTube API:", error);
     }
   };
+const hideYouTubeControls = (player) => {
+  try {
+    const iframe = document.getElementById(player.getIframe().id);
+    if (!iframe) return;
 
-  // Function to hide YouTube controls
-  const hideYouTubeControls = (player) => {
-    try {
-      // This approach uses CSS injection to hide unwanted elements
-      const iframe = document.getElementById(player.getIframe().id);
-      if (iframe) {
-        // Add CSS to hide share button and three dots menu
-        const style = document.createElement("style");
-        style.textContent = `
-          .ytp-share-button, 
-          .ytp-share-icon, 
-          .ytp-button.ytp-share-button,
-          .ytp-button.ytp-copylink-button,
-          .ytp-button.ytp-youtube-button,
-          .ytp-chrome-top-buttons .ytp-button[aria-label="Share"],
-          .ytp-button[title="Share"],
-          .ytp-button[aria-label="More actions"],
-          .ytp-button[title="More actions"] {
-            display: none !important;
-            visibility: hidden !important;
-            opacity: 0 !important;
-            pointer-events: none !important;
-          }
-        `;
+    // Make parent relative for overlay positioning
+    iframe.parentNode.style.position = "relative";
 
-        try {
-          const iframeDoc =
-            iframe.contentDocument || iframe.contentWindow.document;
-          iframeDoc.head.appendChild(style);
-        } catch (e) {
-          // Cross-origin restriction - use overlay method
-          const overlay = document.createElement("div");
-          overlay.style.position = "absolute";
-          overlay.style.top = "0";
-          overlay.style.right = "0";
-          overlay.style.width = "100px";
-          overlay.style.height = "50px";
-          overlay.style.zIndex = "10";
-          overlay.style.background = "transparent";
-          iframe.parentNode.style.position = "relative";
-          iframe.parentNode.appendChild(overlay);
-        }
-      }
-    } catch (error) {
-      console.log("Could not access iframe due to security restrictions");
-    }
-  };
+    // Overlay to cover the title bar (top area)
+    const topOverlay = document.createElement("div");
+    topOverlay.style.position = "absolute";
+    topOverlay.style.top = "0";
+    topOverlay.style.left = "0";
+    topOverlay.style.width = "100%";
+    topOverlay.style.height = "60px"; // Covers title + share area
+    topOverlay.style.zIndex = "10";
+    topOverlay.style.background = "transparent";
+    topOverlay.style.pointerEvents = "auto"; // Block clicks
+
+    // Overlay to cover the "Copy/Share" button area (bottom-right)
+    const bottomOverlay = document.createElement("div");
+    bottomOverlay.style.position = "absolute";
+    bottomOverlay.style.bottom = "0";
+    bottomOverlay.style.right = "0";
+    bottomOverlay.style.width = "100px"; 
+    bottomOverlay.style.height = "60px"; 
+    bottomOverlay.style.zIndex = "10";
+    bottomOverlay.style.background = "transparent";
+    bottomOverlay.style.pointerEvents = "auto"; // Block clicks
+
+    // Append overlays
+    iframe.parentNode.appendChild(topOverlay);
+    iframe.parentNode.appendChild(bottomOverlay);
+
+  } catch (error) {
+    console.log("Could not modify YouTube iframe:", error);
+  }
+};
 
   const updateVideoDuration = (courseId, videoId, duration) => {
     setDashboardData((prev) => {

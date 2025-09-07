@@ -3,14 +3,14 @@
   display: flex;
   min-height: 100vh;
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-  background-color: #f5f7fa;
-  color: #333;
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  color: #1f2937;
   transition: all 0.3s ease;
 }
 
 .darkMode {
-  background-color: #1a1a1a;
-  color: #f0f0f0;
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  color: #f1f5f9;
 }
 
 /* Loading State */
@@ -20,12 +20,19 @@
   align-items: center;
   justify-content: center;
   height: 100vh;
-  gap: 1rem;
+  gap: 1.5rem;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+}
+
+.darkMode .loadingContainer {
+  background: rgba(15, 23, 42, 0.95);
 }
 
 .spinner {
   animation: spin 1s linear infinite;
-  font-size: 2rem;
+  font-size: 3rem;
+  color: #4f46e5;
 }
 
 @keyframes spin {
@@ -44,45 +51,48 @@
   align-items: center;
   justify-content: center;
   height: 100vh;
-  gap: 1rem;
+  gap: 1.5rem;
   text-align: center;
-  padding: 2rem;
+  padding: 3rem;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+}
+
+.darkMode .errorContainer {
+  background: rgba(15, 23, 42, 0.95);
 }
 
 .retryBtn {
-  padding: 0.75rem 1.5rem;
-  background-color: #4a6cf7;
+  padding: 1rem 2rem;
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
   color: white;
   border: none;
-  border-radius: 6px;
+  border-radius: 12px;
   cursor: pointer;
-  font-weight: 500;
-  transition: background-color 0.2s;
+  font-weight: 600;
+  font-size: 1.1rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(79, 70, 229, 0.3);
 }
 
 .retryBtn:hover {
-  background-color: #3a5ce4;
-}
-
-.darkMode .retryBtn {
-  background-color: #5a7df8;
-}
-
-.darkMode .retryBtn:hover {
-  background-color: #4a6cf7;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(79, 70, 229, 0.4);
 }
 
 /* Mobile Header */
 .mobileHeader {
   display: none;
-  padding: 1rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
   z-index: 100;
 }
 
 .darkMode .mobileHeader {
-  background-color: #2a2a2a;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  background: rgba(15, 23, 42, 0.95);
+  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
 }
 
 .menuToggle {
@@ -90,62 +100,77 @@
   border: none;
   color: inherit;
   cursor: pointer;
-}
-
-.mobileTitle {
-  font-size: 1.2rem;
-  margin: 0;
-}
-
-.darkModeToggleMobile {
-  background: none;
-  border: none;
-  color: inherit;
-  cursor: pointer;
+  font-size: 1.5rem;
 }
 
 /* Sidebar */
 .sidebar {
-  width: 280px;
-  background-color: #fff;
-  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+  width: 320px;
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  box-shadow: 4px 0 20px rgba(0, 0, 0, 0.08);
   display: flex;
   flex-direction: column;
   transition: transform 0.3s ease;
 }
 
 .darkMode .sidebar {
-  background-color: #2a2a2a;
-  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.3);
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+  box-shadow: 4px 0 20px rgba(0, 0, 0, 0.3);
 }
 
 .sidebarHeader {
-  padding: 1.5rem;
-  border-bottom: 1px solid #eee;
+  padding: 2rem;
+  border-bottom: 1px solid #e2e8f0;
   display: flex;
   flex-direction: column;
   align-items: center;
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+  color: white;
 }
 
 .darkMode .sidebarHeader {
-  border-bottom-color: #444;
+  border-bottom-color: #334155;
 }
 
 .userAvatar {
-  width: 80px;
-  height: 80px;
+  width: 100px;
+  height: 100px;
   border-radius: 50%;
-  background-color: #e0e7ff;
+  background: rgba(255, 255, 255, 0.2);
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 1rem;
-  color: #4a6cf7;
+  margin-bottom: 1.5rem;
+  color: white;
+  font-size: 2.5rem;
+  backdrop-filter: blur(10px);
+  border: 3px solid rgba(255, 255, 255, 0.3);
 }
 
-.darkMode .userAvatar {
-  background-color: #333;
+
+.video-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%; /* Take full card height */
+  overflow: hidden;
+  border-radius: 16px; /* Optional */
 }
+
+.video-wrapper iframe {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100vw;  /* Make it really large so cover works */
+  height: 56.25vw; /* 16:9 ratio based on viewport width */
+  transform: translate(-50%, -50%);
+  object-fit: cover; /* This keeps it filled */
+  border: 0;
+}
+
+.yt-title-blocker {
+  pointer-events: auto; /* This ensures clicks on title are blocked */
+}
+
 
 .userInfo {
   text-align: center;
@@ -153,335 +178,371 @@
 
 .userInfo h3 {
   margin: 0;
-  font-size: 1.1rem;
+  font-size: 1.4rem;
+  font-weight: 600;
 }
 
 .userInfo p {
-  margin: 0.25rem 0 0;
-  color: #666;
-  font-size: 0.9rem;
-}
-
-.darkMode .userInfo p {
-  color: #aaa;
+  margin: 0.5rem 0 0;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 1rem;
 }
 
 .sidebarNav {
   flex: 1;
-  padding: 1rem 0;
+  padding: 2rem 0;
 }
 
 .menuItem {
-  padding: 0.75rem 1.5rem;
+  padding: 1.25rem 2rem;
   display: flex;
   align-items: center;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: all 0.3s ease;
+  border-left: 4px solid transparent;
+  margin: 0.5rem 0;
 }
 
 .menuItem:hover {
-  background-color: #f0f4ff;
+  background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+  border-left-color: #4f46e5;
+  transform: translateX(5px);
 }
 
 .darkMode .menuItem:hover {
-  background-color: #333;
+  background: linear-gradient(135deg, #334155 0%, #1e293b 100%);
 }
 
 .menuIcon {
-  margin-right: 12px;
-  font-size: 1rem;
-  color: #666;
+  margin-right: 1rem;
+  font-size: 1.3rem;
+  color: #64748b;
+  transition: color 0.3s ease;
+}
+
+.menuItem:hover .menuIcon {
+  color: #4f46e5;
 }
 
 .darkMode .menuIcon {
-  color: #aaa;
+  color: #94a3b8;
 }
 
 .sidebarFooter {
-  padding: 1rem 0;
-  border-top: 1px solid #eee;
+  padding: 2rem 0;
+  border-top: 1px solid #e2e8f0;
 }
 
 .darkMode .sidebarFooter {
-  border-top-color: #444;
+  border-top-color: #334155;
 }
 
 .logoutBtn {
   width: 100%;
-  padding: 0.75rem 1.5rem;
+  padding: 1.25rem 2rem;
   background: none;
   border: none;
   text-align: left;
   display: flex;
   align-items: center;
   cursor: pointer;
-  color: #e74c3c;
-  transition: background-color 0.2s;
+  color: #ef4444;
+  transition: all 0.3s ease;
+  font-weight: 600;
 }
 
 .logoutBtn:hover {
-  background-color: #ffebee;
-}
-
-.darkMode .logoutBtn {
-  color: #ff6b6b;
+  background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+  transform: translateX(5px);
 }
 
 .darkMode .logoutBtn:hover {
-  background-color: #3a2a2a;
+  background: linear-gradient(135deg, #7f1d1d 0%, #991b1b 100%);
 }
 
 /* Main Content */
 .mainContent {
   flex: 1;
-  padding: 2rem;
+  padding: 3rem;
   overflow-y: auto;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+}
+
+.darkMode .mainContent {
+  background: rgba(15, 23, 42, 0.8);
 }
 
 .contentHeader {
-  margin-bottom: 2rem;
+  margin-bottom: 3rem;
+  text-align: center;
 }
 
 .contentHeader h1 {
   margin: 0;
-  font-size: 2rem;
-  font-weight: 600;
+  font-size: 3.5rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 1rem;
 }
 
 .contentHeader p {
-  margin: 0.5rem 0 0;
-  color: #666;
-  font-size: 1rem;
+  margin: 0;
+  font-size: 1.3rem;
+  color: #64748b;
+  font-weight: 500;
 }
 
 .darkMode .contentHeader p {
-  color: #aaa;
+  color: #94a3b8;
 }
 
 .sectionTitle {
   display: flex;
   align-items: center;
-  font-size: 1.5rem;
-  margin: 2rem 0 1.5rem;
-  color: #4a6cf7;
+  font-size: 2.2rem;
+  margin: 3rem 0 2.5rem;
+  color: #1f2937;
+  font-weight: 600;
 }
 
 .darkMode .sectionTitle {
-  color: #5a7df8;
+  color: #f1f5f9;
 }
 
 .sectionIcon {
-  margin-right: 12px;
+  margin-right: 1rem;
+  color: #4f46e5;
+  font-size: 2rem;
 }
 
-.emptyState {
-  text-align: center;
-  padding: 3rem;
-  background-color: #fff;
-  border-radius: 10px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-}
-
-.darkMode .emptyState {
-  background-color: #2a2a2a;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-}
-
-.primaryBtn {
-  padding: 0.75rem 1.5rem;
-  background-color: #4a6cf7;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: 500;
-  margin-top: 1rem;
-  transition: background-color 0.2s;
-}
-
-.primaryBtn:hover {
-  background-color: #3a5ce4;
-}
-
-.darkMode .primaryBtn {
-  background-color: #5a7df8;
-}
-
-.darkMode .primaryBtn:hover {
-  background-color: #4a6cf7;
-}
-
-/* Courses Grid */
+/* Courses Grid - SIGNIFICANTLY ENLARGED */
 .coursesGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fill, minmax(750px, 1fr));
+  gap: 2.5rem;
+  margin: 2rem 0;
 }
 
 .courseCard {
-  background-color: #fff;
-  border-radius: 10px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  border-radius: 20px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
   overflow: hidden;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition: all 0.3s ease;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
 }
 
 .darkMode .courseCard {
-  background-color: #2a2a2a;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .courseCard:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-}
-
-.darkMode .courseCard:hover {
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 20px 60px rgba(79, 70, 229, 0.2);
 }
 
 .courseHeader {
-  padding: 1.25rem;
-  border-bottom: 1px solid #eee;
+  padding: 2rem;
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+  color: white;
+  position: relative;
+  overflow: hidden;
 }
 
-.darkMode .courseHeader {
-  border-bottom-color: #444;
+.courseHeader::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="2" fill="rgba(255,255,255,0.1)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+  opacity: 0.3;
 }
 
 .courseHeader h3 {
-  margin: 0 0 1rem;
-  font-size: 1.2rem;
+  margin: 0 0 1.5rem;
+  font-size: 1.8rem;
+  font-weight: 600;
+  position: relative;
+  z-index: 2;
 }
 
 .courseProgress {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 1.5rem;
+  position: relative;
+  z-index: 2;
 }
 
 .progressBar {
   flex: 1;
-  height: 6px;
-  background-color: #e0e7ff;
-  border-radius: 3px;
+  height: 12px;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 10px;
   overflow: hidden;
-}
-
-.darkMode .progressBar {
-  background-color: #333;
+  backdrop-filter: blur(10px);
 }
 
 .progressFill {
   height: 100%;
-  background-color: #4a6cf7;
-  transition: width 0.3s ease;
+  background: linear-gradient(90deg, #10b981 0%, #22c55e 100%);
+  transition: width 0.8s ease;
+  position: relative;
+}
+
+.progressFill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.4) 50%, transparent 100%);
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
 }
 
 .courseProgress span {
-  font-size: 0.85rem;
-  color: #666;
-  white-space: nowrap;
+  font-size: 1.1rem;
+  color: rgba(255, 255, 255, 0.95);
+  font-weight: 600;
+  min-width: 120px;
+  text-align: right;
 }
 
-.darkMode .courseProgress span {
-  color: #aaa;
-}
-
+/* Videos List - ENLARGED */
 .videosList {
-  padding: 1rem;
+  padding: 2rem;
 }
 
 .videoCard {
-  margin-bottom: 1.25rem;
+  margin-bottom: 2rem;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.darkMode .videoCard {
+  background: rgba(30, 41, 59, 0.8);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.videoCard:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 30px rgba(79, 70, 229, 0.15);
 }
 
 .videoHeader {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  margin-bottom: 0.75rem;
+  align-items: flex-start;
+  margin-bottom: 1.5rem;
+  gap: 1.5rem;
 }
 
 .videoHeader h4 {
   margin: 0;
-  font-size: 1rem;
+  font-size: 1.3rem;
+  font-weight: 600;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 1rem;
+  flex: 1;
+  line-height: 1.5;
 }
 
 .videoPlayIcon {
-  color: #4a6cf7;
+  color: #4f46e5;
+  font-size: 1.3rem;
 }
 
 .videoCompletedIcon {
   color: #10b981;
+  font-size: 1.3rem;
 }
 
 .videoLockedIcon {
-  color: #ff4757;
+  color: #ef4444;
+  font-size: 1.3rem;
 }
 
 .videoDuration {
-  font-size: 0.85rem;
-  color: #666;
-  background-color: #f0f4ff;
-  padding: 0.25rem 0.5rem;
-  border-radius: 4px;
+  font-size: 1rem;
+  color: #4f46e5;
+  background: rgba(79, 70, 229, 0.1);
+  padding: 0.6rem 1.2rem;
+  border-radius: 25px;
+  font-weight: 600;
+  white-space: nowrap;
+  backdrop-filter: blur(10px);
 }
 
 .darkMode .videoDuration {
-  color: #aaa;
-  background-color: #333;
+  color: #818cf8;
+  background: rgba(129, 140, 248, 0.2);
 }
 
-/* YouTube Player Container - UPDATED */
+/* YouTube Player Container - ENLARGED */
 .videoContainer {
   position: relative;
   width: 100%;
-  padding-top: 56.25%; /* 16:9 Aspect Ratio */
-  border-radius: 8px;
+  height: 800px;
+  border-radius: 16px;
   overflow: hidden;
-  margin-bottom: 15px;
+  margin-bottom: 1.5rem;
   background: #000;
-  /* Add these to prevent right-click menu */
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+  /* Prevent right-click menu */
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
 }
 
-/* YouTube Player - UPDATED */
 .videoPlayer {
-  position: absolute;
-  top: 0;
-  left: 0;
   width: 100%;
   height: 100%;
   border: none;
-  /* Add pointer-events to prevent right-click */
   pointer-events: auto;
 }
 
-/* Custom overlay to prevent right-click menu */
-.videoOverlay {
-  position: absolute;
-  top: 0;
-  left: 0;
+/* Ensure YouTube iframe takes full container */
+.videoPlayer iframe {
+  width: 100% !important;
+  height: 100% !important;
+  border: none;
+}
+
+/* Loading state */
+.videoPlayer > div {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 100%;
   height: 100%;
-  z-index: 10;
-  pointer-events: none;
-}
-
-/* Additional CSS for dark mode */
-.darkMode .videoContainer {
   background: #111;
-}
-
-.darkMode .videoPlayer {
-  filter: brightness(0.9);
+  color: white;
+  flex-direction: column;
+  gap: 1.5rem;
+  font-size: 1.1rem;
 }
 
 /* Locked video state */
@@ -490,615 +551,406 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: rgba(0, 0, 0, 0.7);
+  background: linear-gradient(135deg, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0.8) 100%);
   color: white;
-  padding: 40px 20px;
-  border-radius: 8px;
+  padding: 3rem;
+  border-radius: 16px;
   text-align: center;
-  min-height: 200px;
+  min-height: 250px;
+  gap: 1.5rem;
+  backdrop-filter: blur(10px);
+}
+
+.lockedOverlay svg {
+  color: #ef4444;
+  font-size: 3rem;
 }
 
 .lockedBadge {
-  background: #ff4757;
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
   color: white;
-  padding: 2px 8px;
-  border-radius: 12px;
-  font-size: 0.7rem;
-  margin-left: 10px;
+  padding: 0.5rem 1.2rem;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  margin-left: 1rem;
+  font-weight: 600;
+  backdrop-filter: blur(10px);
 }
 
 .videoProgress {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 1.5rem;
+  margin-top: 1.5rem;
 }
 
 .videoProgress span {
-  font-size: 0.8rem;
-  color: #666;
+  font-size: 1rem;
+  color: #64748b;
   white-space: nowrap;
+  font-weight: 600;
 }
 
 .darkMode .videoProgress span {
-  color: #aaa;
+  color: #94a3b8;
 }
 
+/* Course Footer - ENLARGED */
 .courseFooter {
-  padding: 1rem;
-  border-top: 1px solid #eee;
+  padding: 2rem;
+  border-top: 1px solid #e2e8f0;
   text-align: center;
+  background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(10px);
 }
 
 .darkMode .courseFooter {
-  border-top-color: #444;
+  border-top-color: #334155;
+  background: rgba(30, 41, 59, 0.5);
 }
 
 .certificateBtn {
-  padding: 0.75rem 1.5rem;
-  background-color: #10b981;
+  padding: 1.2rem 2.5rem;
+  background: linear-gradient(135deg, #10b981 0%, #22c55e 100%);
   color: white;
   border: none;
-  border-radius: 6px;
+  border-radius: 12px;
   cursor: pointer;
-  font-weight: 500;
+  font-weight: 700;
+  font-size: 1.1rem;
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  transition: background-color 0.2s;
+  gap: 1rem;
+  transition: all 0.3s ease;
+  min-width: 280px;
+  justify-content: center;
+  box-shadow: 0 6px 25px rgba(16, 185, 129, 0.3);
 }
 
 .certificateBtn:hover {
-  background-color: #0e9f72;
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 10px 35px rgba(16, 185, 129, 0.4);
 }
 
 .certificateBtn.disabled {
-  background-color: #e5e7eb;
-  color: #6b7280;
+  background: linear-gradient(135deg, #94a3b8 0%, #64748b 100%);
+  color: #f8fafc;
   cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
 
-.darkMode .certificateBtn.disabled {
-  background-color: #444;
-  color: #888;
+.certificateBtn.disabled:hover {
+  transform: none;
+  box-shadow: none;
 }
 
 /* Certificates Section */
 .certificatesGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+  gap: 2.5rem;
+  margin: 2rem 0;
 }
 
 .certificateCard {
-  background-color: #fff;
-  border-radius: 10px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-  padding: 1.5rem;
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  border-radius: 20px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+  padding: 2.5rem;
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition: all 0.3s ease;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(10px);
 }
 
 .darkMode .certificateCard {
-  background-color: #2a2a2a;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .certificateCard:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-}
-
-.darkMode .certificateCard:hover {
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  transform: translateY(-5px) scale(1.03);
+  box-shadow: 0 15px 50px rgba(79, 70, 229, 0.2);
 }
 
 .certificatePreview {
-  width: 120px;
-  height: 90px;
-  background-color: #f0f4ff;
-  border-radius: 8px;
+  width: 160px;
+  height: 120px;
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+  border-radius: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 1rem;
-  color: #4a6cf7;
-}
-
-.darkMode .certificatePreview {
-  background-color: #333;
+  margin-bottom: 2rem;
+  color: white;
+  font-size: 3rem;
+  box-shadow: 0 8px 25px rgba(79, 70, 229, 0.3);
 }
 
 .certificateInfo {
-  margin-bottom: 1.5rem;
+  margin-bottom: 2rem;
 }
 
 .certificateInfo h3 {
-  margin: 0 0 0.5rem;
-  font-size: 1.1rem;
+  margin: 0 0 1rem;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.darkMode .certificateInfo h3 {
+  color: #f1f5f9;
 }
 
 .certificateInfo p {
   margin: 0;
-  font-size: 0.9rem;
-  color: #666;
+  font-size: 1rem;
+  color: #64748b;
+  font-weight: 500;
 }
 
 .darkMode .certificateInfo p {
-  color: #aaa;
+  color: #94a3b8;
 }
 
 .downloadBtn {
-  padding: 0.5rem 1rem;
-  background-color: #4a6cf7;
+  padding: 1rem 2rem;
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
   color: white;
   border: none;
-  border-radius: 6px;
+  border-radius: 12px;
   cursor: pointer;
-  font-weight: 500;
+  font-weight: 600;
+  font-size: 1.1rem;
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  transition: background-color 0.2s;
-}
-
-.downloadBtn:hover {
-  background-color: #3a5ce4;
-}
-
-/* Add these new styles to your existing CSS */
-
-/* Toggle Switch */
-.toggleSwitch {
-  position: relative;
-  width: 60px;
-  height: 30px;
-  background-color: #e0e7ff;
-  border-radius: 15px;
-  margin-right: 12px;
-  cursor: pointer;
-}
-
-.darkMode .toggleSwitch {
-  background-color: #444;
-}
-
-.toggleSlider {
-  position: absolute;
-  width: 26px;
-  height: 26px;
-  background-color: #4a6cf7;
-  border-radius: 50%;
-  top: 2px;
-  left: 2px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-size: 12px;
-  transition: transform 0.3s ease;
-}
-
-.toggleSliderActive {
-  transform: translateX(30px);
-  background-color: #f0f0f0;
-  color: #333;
-}
-
-/* Certificates Toggle Button */
-.certificatesToggleBtn {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 0.75rem 1.5rem;
-  background-color: #e0e7ff;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: 500;
-  margin-bottom: 1.5rem;
+  gap: 1rem;
   transition: all 0.3s ease;
-}
-
-.darkMode .certificatesToggleBtn {
-  background-color: #333;
-  color: #f0f0f0;
-}
-
-.certificatesToggleBtn:hover {
-  background-color: #d0d7ff;
-}
-
-.darkMode .certificatesToggleBtn:hover {
-  background-color: #444;
-}
-
-.certificatesToggleBtn.active {
-  background-color: #4a6cf7;
-  color: white;
-}
-
-.toggleIcon {
-  font-size: 1rem;
-}
-
-/* Badge */
-.badge {
-  background-color: #4a6cf7;
-  color: white;
-  border-radius: 10px;
-  padding: 0.25rem 0.5rem;
-  font-size: 0.75rem;
-  margin-left: 8px;
-}
-
-.darkMode .badge {
-  background-color: #5a7df8;
-}
-
-/* Courses Subsection */
-.coursesSubsection {
-  margin-bottom: 2rem;
-}
-
-.subsectionTitle {
-  font-size: 1.25rem;
-  margin-bottom: 1rem;
-  color: #4a6cf7;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.darkMode .subsectionTitle {
-  color: #5a7df8;
-}
-
-/* Expand Icon */
-.expandIcon {
-  margin-left: auto;
-  cursor: pointer;
-  transition: transform 0.2s;
-}
-
-/* Certificate Card Enhancements */
-.certificateCard {
-  position: relative;
-  overflow: hidden;
-}
-
-.completionStatus {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin-top: 0.5rem;
-  color: #10b981;
-  font-weight: 500;
-}
-
-.completionIcon {
-  font-size: 0.9rem;
-}
-
-/* Section Transitions */
-.certificatesSection {
-  max-height: 0;
-  overflow: hidden;
-  transition: max-height 0.5s ease, opacity 0.3s ease;
-  opacity: 0;
-}
-
-.certificatesSection.show {
-  max-height: 1000px;
-  opacity: 1;
-  margin-bottom: 2rem;
-}
-
-.coursesSection.hidden {
-  display: none;
-}
-
-/* Certificates Panel */
-.certificatesPanel {
-  position: fixed;
-  top: 0;
-  right: -400px;
-  width: 400px;
-  height: 100vh;
-  background-color: #fff;
-  box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
-  z-index: 999;
-  transition: right 0.3s ease;
-  overflow-y: auto;
-}
-
-.darkMode .certificatesPanel {
-  background-color: #2a2a2a;
-  box-shadow: -2px 0 10px rgba(0, 0, 0, 0.3);
-}
-
-.certificatesPanel.show {
-  right: 0;
-}
-
-.panelHeader {
-  padding: 1.5rem;
-  border-bottom: 1px solid #eee;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  position: sticky;
-  top: 0;
-  background-color: inherit;
-  z-index: 1;
-}
-
-.darkMode .panelHeader {
-  border-bottom-color: #444;
-}
-
-.panelHeader h3 {
-  margin: 0;
-  font-size: 1.25rem;
-  color: #4a6cf7;
-}
-
-.darkMode .panelHeader h3 {
-  color: #5a7df8;
-}
-
-.closePanelBtn {
-  background: none;
-  border: none;
-  color: #666;
-  cursor: pointer;
-  font-size: 1.25rem;
-}
-
-.darkMode .closePanelBtn {
-  color: #aaa;
-}
-
-.certificatesList {
-  padding: 1rem;
-}
-
-.certificateItem {
-  padding: 1rem;
-  margin-bottom: 1rem;
-  background-color: #f5f7fa;
-  border-radius: 8px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.darkMode .certificateItem {
-  background-color: #333;
-}
-
-.certificateInfo h4 {
-  margin: 0 0 0.5rem;
-  font-size: 1rem;
-}
-
-.certificateInfo p {
-  margin: 0;
-  font-size: 0.85rem;
-  color: #666;
-}
-
-.darkMode .certificateInfo p {
-  color: #aaa;
-}
-
-.downloadBtn {
-  padding: 0.5rem 1rem;
-  background-color: #4a6cf7;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: 500;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  transition: background-color 0.2s;
+  box-shadow: 0 6px 25px rgba(79, 70, 229, 0.3);
 }
 
 .downloadBtn:hover {
-  background-color: #3a5ce4;
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 10px 35px rgba(79, 70, 229, 0.4);
 }
 
-.darkMode .downloadBtn {
-  background-color: #5a7df8;
-}
-
-.darkMode .downloadBtn:hover {
-  background-color: #4a6cf7;
-}
-
-/* Main Content Shift */
-.mainContent {
-  transition: margin-right 0.3s ease;
-}
-
-.contentShifted {
-  margin-right: 400px;
-}
-
-/* REMOVED the non-working iframe CSS selectors */
-.videoPlayer iframe {
-  /* This is the only safe way to style the iframe from outside */
-  position: relative;
-  z-index: 1;
-}
-
-.cancelBtn {
-  display: none;
-}
-
-/* Responsive Adjustments */
-@media (max-width: 768px) {
-  .certificatesPanel {
-  width: 100%;
-  right: -100%;
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .coursesGrid {
+    grid-template-columns: repeat(auto-fill, minmax(600px, 1fr));
+    gap: 2rem;
   }
-
-  .contentShifted {
-  margin-right: 0;
+  
+  .videoContainer {
+    height: 350px;
   }
 }
 
-/* Responsive Styles */
 @media (max-width: 1024px) {
   .sidebar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  bottom: 0;
-  z-index: 1000;
-  transform: translateX(-100%);
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    z-index: 1000;
+    transform: translateX(-100%);
   }
 
   .sidebarOpen {
-  transform: translateX(0);
+    transform: translateX(0);
   }
 
   .mobileHeader {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  }
-
-  #darkModeToggle {
-  position: relative;
-  top: 30px;
-  right: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.2rem;
   }
 
   .mainContent {
-  padding: 1rem;
-  margin-top: 60px;
+    padding: 1.5rem;
+    margin-top: 80px;
   }
 
   .coursesGrid {
-  grid-template-columns: 1fr;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
   }
+  
+  .contentHeader h1 {
+    font-size: 2.5rem;
+  }
+  
+  .sectionTitle {
+    font-size: 1.8rem;
+  }
+  
   .cancelBtn {
-  position: absolute;
-  left: 83%;
-  top: 3%;
-  font-size: 30px;
-  color: red;
-  cursor: pointer;
-  display: block;
+    position: absolute;
+    right: 2rem;
+    top: 2rem;
+    font-size: 2rem;
+    color: #ef4444;
+    cursor: pointer;
+    display: block;
+    z-index: 1001;
   }
 }
 
 @media (max-width: 768px) {
+  .coursesGrid {
+    gap: 1.2rem;
+  }
+  
+  .courseCard {
+    margin-bottom: 1.5rem;
+  }
+  
+  .videoContainer {
+    height: 280px;
+  }
+  
+  .videoHeader {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .videoHeader h4 {
+    font-size: 1.2rem;
+  }
+  
+  .certificateBtn {
+    width: 100%;
+    max-width: 100%;
+    min-width: auto;
+  }
+  
+  .certificatesGrid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  
   .contentHeader h1 {
-  font-size: 1.5rem;
+    font-size: 2rem;
   }
-
+  
   .sectionTitle {
-  font-size: 1.25rem;
+    font-size: 1.5rem;
+    margin: 2rem 0 1.5rem;
   }
 }
 
-/* NEW: YouTube Player Customization Workaround */
-.youtube-player-container {
-  position: relative;
-  width: 100%;
-  height: 0;
-  padding-bottom: 56.25%; /* 16:9 aspect ratio */
-  overflow: hidden;
+@media (max-width: 480px) {
+  .mainContent {
+    padding: 1rem;
+  }
+  
+  .courseHeader {
+    padding: 1.5rem;
+  }
+  
+  .courseHeader h3 {
+    font-size: 1.5rem;
+  }
+  
+  .videosList {
+    padding: 1.5rem;
+  }
+  
+  .videoCard {
+    padding: 1.2rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .videoContainer {
+    height: 220px;
+  }
+  
+  .lockedOverlay {
+    padding: 2rem;
+    min-height: 200px;
+  }
+  
+  .lockedOverlay p {
+    font-size: 1rem;
+  }
+  
+  .courseFooter {
+    padding: 1.5rem;
+  }
+  
+  .contentHeader h1 {
+    font-size: 1.8rem;
+  }
+  
+  .contentHeader p {
+    font-size: 1.1rem;
+  }
 }
 
-.youtube-player-container iframe {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  border: 0;
+/* Additional enhancements */
+.emptyState {
+  text-align: center;
+  padding: 4rem 2rem;
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  border-radius: 20px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+  margin: 2rem 0;
 }
 
-/* Custom player controls overlay */
-.custom-player-controls {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
-  padding: 10px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  z-index: 10;
+.darkMode .emptyState {
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
 }
 
-.custom-play-btn, .custom-mute-btn {
-  background: rgba(255, 255, 255, 0.2);
-  border: none;
+.primaryBtn {
+  padding: 1.2rem 2.5rem;
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
   color: white;
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  border: none;
+  border-radius: 12px;
   cursor: pointer;
-  font-size: 16px;
+  font-weight: 700;
+  font-size: 1.1rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 6px 25px rgba(79, 70, 229, 0.3);
+  margin-top: 1.5rem;
 }
 
-.custom-play-btn:hover, .custom-mute-btn:hover {
-  background: rgba(255, 255, 255, 0.3);
+.primaryBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 35px rgba(79, 70, 229, 0.4);
 }
 
-.custom-progress-bar {
-  flex-grow: 1;
-  height: 4px;
-  background: rgba(255, 255, 255, 0.3);
-  border-radius: 2px;
-  margin: 0 10px;
-  position: relative;
-  overflow: hidden;
+
+
+/* Focus states for accessibility */
+.primaryBtn button:focus,
+.primaryBtnv a:focus {
+  outline: 2px solid #4f46e5;
+  outline-offset: 2px;
 }
 
-.custom-progress-filled {
-  position: absolute;
-  top: 0;
-  left: 0;
-  height: 100%;
-  background: #ff0000;
-  width: 0%;
+/* Custom scrollbar */
+.mainContent::-webkit-scrollbar {
+  width: 8px;
 }
 
-/* Block right-click context menu */
-.video-container-wrapper {
-  position: relative;
+.mainContent::-webkit-scrollbar-track {
+  background: rgba(79, 70, 229, 0.1);
+  border-radius: 4px;
 }
 
-.video-container-wrapper::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 5;
-  pointer-events: none;
+.mainContent::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+  border-radius: 4px;
 }
 
-/* Disable right-click on video containers */
-.videoContainer {
-  -webkit-touch-callout: none;
-  -webkit-user-select: none;
-  -khtml-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
+.mainContent::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%);
 }

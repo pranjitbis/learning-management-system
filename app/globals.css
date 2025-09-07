@@ -56,6 +56,14 @@
   --background-color: #1a1a1a;
 }
 
+/* Hide YouTube title & channel link */
+.ytp-chrome-top, .ytp-title,
+.ytp-title {
+  position: relative;
+  z-index: -12;
+  display: none !important;
+}
+
 * {
   margin: 0;
   padding: 0;
