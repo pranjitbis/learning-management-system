@@ -194,34 +194,31 @@ export default function Dashboard() {
           const videoId = getYouTubeId(video.url);
           if (!videoId) return;
 
-          // ⛔ Prevent blinking – do NOT destroy if already exists
-          if (playerRefs.current[video.id]) {
-            return;
-          }
+          if (playerRefs.current[video.id]) return;
 
-          // Create new player only once
           playerRefs.current[video.id] = new window.YT.Player(
             `video-${video.id}`,
             {
               videoId,
-          playerVars: {
-  fs: 0,               // Disable fullscreen
-  modestbranding: 1,    // Minimal branding
-  rel: 0,               // No related videos
-  controls: 1,          // 🚀 Hide controls & title/link
-  playsinline: 1,       
-  enablejsapi: 1,
-  origin: window.location.origin,
-  iv_load_policy: 3,    // Hide annotations
-  widget_referrer: window.location.href,
-},
+              playerVars: {
+                autoplay: 0,
+                controls: 0, // No default controls
+                modestbranding: 1, // Hide YouTube branding
+                rel: 0, // No suggested videos
+                iv_load_policy: 3, // Hide annotations
+                fs: 0, // No fullscreen
+                disablekb: 1, // No keyboard shortcuts
+                playsinline: 1,
+                enablejsapi: 1,
+                origin: window.location.origin,
+              },
               events: {
                 onReady: (event) => {
                   try {
                     const duration = event.target.getDuration();
                     updateVideoDuration(course.id, video.id, duration);
-                    // Hide YouTube controls that we don't want
-                    hideYouTubeControls(event.target);
+                    hideYouTubeUI(video.id);
+                    addSecurityOverlay(video.id, event.target);
                   } catch (e) {
                     console.error("onReady error:", e);
                   }
@@ -241,44 +238,94 @@ export default function Dashboard() {
       console.error("Error loading YouTube API:", error);
     }
   };
-const hideYouTubeControls = (player) => {
-  try {
-    const iframe = document.getElementById(player.getIframe().id);
-    if (!iframe) return;
 
-    // Make parent relative for overlay positioning
-    iframe.parentNode.style.position = "relative";
+  /**
+   * 🔥 Hide YouTube UI elements
+   */
+  const hideYouTubeUI = (videoId) => {
+    setTimeout(() => {
+      const iframe = document
+        .getElementById(`video-${videoId}`)
+        ?.querySelector("iframe");
+      if (!iframe) return;
 
-    // Overlay to cover the title bar (top area)
-    const topOverlay = document.createElement("div");
-    topOverlay.style.position = "absolute";
-    topOverlay.style.top = "0";
-    topOverlay.style.left = "0";
-    topOverlay.style.width = "100%";
-    topOverlay.style.height = "60px"; // Covers title + share area
-    topOverlay.style.zIndex = "10";
-    topOverlay.style.background = "transparent";
-    topOverlay.style.pointerEvents = "auto"; // Block clicks
+      // Try injecting CSS into iframe (if same-origin policy allows)
+      try {
+        const style = document.createElement("style");
+        style.textContent = `
+        .ytp-title,
+        .ytp-chrome-top,
+        .ytp-share-button,
+        .ytp-button.ytp-settings-button {
+          display: none !important;
+          pointer-events: none !important;
+        }
+      `;
+        iframe.contentWindow?.document?.head?.appendChild(style);
+      } catch {
+        // If iframe injection is blocked, fallback overlay will block clicks
+      }
+    }, 1000);
+  };
 
-    // Overlay to cover the "Copy/Share" button area (bottom-right)
-    const bottomOverlay = document.createElement("div");
-    bottomOverlay.style.position = "absolute";
-    bottomOverlay.style.bottom = "0";
-    bottomOverlay.style.right = "0";
-    bottomOverlay.style.width = "100px"; 
-    bottomOverlay.style.height = "60px"; 
-    bottomOverlay.style.zIndex = "10";
-    bottomOverlay.style.background = "transparent";
-    bottomOverlay.style.pointerEvents = "auto"; // Block clicks
+  /**
+   * 🔥 Overlay to block copying URL, title clicks & right-click
+   */
+  const addSecurityOverlay = (videoId, player) => {
+    const container = document.getElementById(`video-${videoId}`);
+    if (!container) return;
 
-    // Append overlays
-    iframe.parentNode.appendChild(topOverlay);
-    iframe.parentNode.appendChild(bottomOverlay);
+    container.parentElement.style.position = "relative";
 
-  } catch (error) {
-    console.log("Could not modify YouTube iframe:", error);
-  }
-};
+    const overlay = document.createElement("div");
+    overlay.style.position = "absolute";
+    overlay.style.top = "0";
+    overlay.style.left = "0";
+    overlay.style.width = "100%";
+    overlay.style.height = "100%";
+    overlay.style.zIndex = "10";
+    overlay.style.background = "transparent";
+    overlay.style.cursor = "pointer";
+
+    // 🔥 Disable right-click
+    overlay.oncontextmenu = (e) => e.preventDefault();
+
+    // 🔥 Click to play/pause
+    overlay.addEventListener("click", () => {
+      if (player.getPlayerState() === window.YT.PlayerState.PLAYING) {
+        player.pauseVideo();
+      } else {
+        player.playVideo();
+      }
+    });
+
+    container.parentElement.appendChild(overlay);
+  };
+
+  /**
+   * Attempts to hide branding & extra controls visually.
+   * Can't modify YouTube iframe internally due to cross-origin, so we overlay.
+   */
+  const hideYouTubeControls = (player) => {
+    try {
+      const iframe = player.getIframe();
+      if (!iframe) return;
+
+      // Style iframe container
+      iframe.style.pointerEvents = "none"; // Block all interactions
+
+      // Add global CSS to hide YouTube branding (if accessible)
+      const style = document.createElement("style");
+      style.textContent = `
+      iframe[src*="youtube.com"] {
+        border: none !important;
+      }
+    `;
+      document.head.appendChild(style);
+    } catch (error) {
+      console.log("Could not modify YouTube iframe:", error);
+    }
+  };
 
   const updateVideoDuration = (courseId, videoId, duration) => {
     setDashboardData((prev) => {

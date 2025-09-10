@@ -16,7 +16,84 @@
   font-weight: 600;
   color: #2d3748;
 }
+/* Add these styles to your existing courses.module.css */
 
+.videosList {
+  margin: 15px 0;
+  padding: 10px;
+  background: #f8f9fa;
+  border-radius: 6px;
+}
+
+.videosList h4 {
+  margin: 0 0 10px 0;
+  font-size: 14px;
+  color: #374151;
+}
+
+.videosList ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.videoItem {
+  display: flex;
+  flex-direction: column;
+  padding: 8px;
+  margin-bottom: 8px;
+  background: white;
+  border-radius: 4px;
+  border-left: 3px solid #3b82f6;
+}
+
+.videoTitle {
+  font-weight: 500;
+  font-size: 13px;
+  margin-bottom: 4px;
+  color: #1f2937;
+}
+
+.videoUrl {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.urlText {
+  font-size: 12px;
+  color: #6b7280;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+}
+
+.openUrlBtn {
+  background: #ef4444;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 4px 6px;
+  cursor: pointer;
+  margin-left: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.openUrlBtn:hover {
+  background: #dc2626;
+}
+
+.noVideos {
+  font-size: 13px;
+  color: #6b7280;
+  font-style: italic;
+  margin: 0;
+}
+
+/* Other existing styles... */
 .actions {
   display: flex;
   gap: 1rem;
