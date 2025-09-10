@@ -208,7 +208,7 @@ export default function Dashboard() {
   fs: 0,               // Disable fullscreen
   modestbranding: 1,    // Minimal branding
   rel: 0,               // No related videos
-  controls: 0,          // 🚀 Hide controls & title/link
+  controls: 1,          // 🚀 Hide controls & title/link
   playsinline: 1,       
   enablejsapi: 1,
   origin: window.location.origin,
