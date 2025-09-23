@@ -500,6 +500,12 @@
   background: rgba(129, 140, 248, 0.2);
 }
 
+.loginBtn{
+    background: rgba(129, 140, 248, 0.2);
+    color: white ;
+    padding: 30px 30px ;
+}
+
 /* YouTube Player Container - ENLARGED */
 .videoContainer {
   position: relative;
