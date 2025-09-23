@@ -30,7 +30,7 @@ export async function POST(request) {
     }
 
     const videosData = videos.map((v, index) => {
-      if (!v.url || typeof v.url !== "string") {
+      if (!v.url || typeof v.url !== "string" || v.url.trim() === "") {
         throw new Error(
           `Video at index ${index} is missing a valid 'url' string`
         );
@@ -39,7 +39,7 @@ export async function POST(request) {
       // Store the full YouTube URL directly
       return {
         title: v.title || `Video ${index + 1}`,
-        url: v.url, // Store full URL
+        url: v.url.trim(), // Store full URL
         position: index + 1,
         published: true,
       };
@@ -126,6 +126,10 @@ export async function PUT(request) {
     const body = await request.json();
     const { title, description, price, category, thumbnail, videos } = body;
 
+    // Log received data for debugging
+    console.log("Received update request for course:", id);
+    console.log("Videos data:", videos);
+
     // Validation
     if (!title || !description || !price || !category) {
       return NextResponse.json(
@@ -151,28 +155,20 @@ export async function PUT(request) {
       return NextResponse.json({ error: "Course not found" }, { status: 404 });
     }
 
-    // Prepare videos data
+    // Prepare videos data - CONSISTENT WITH POST ENDPOINT
     const videosData = videos.map((v, index) => {
-      if (!v.url || typeof v.url !== "string") {
+      // Enhanced validation
+      if (!v.url || typeof v.url !== "string" || v.url.trim() === "") {
         throw new Error(
           `Video at index ${index} is missing a valid 'url' string`
         );
       }
 
-      // Convert YouTube URL to embed format
-      let videoUrl = v.url;
-      if (v.url.includes("youtube.com/watch?v=")) {
-        const videoId = v.url.split("v=")[1].split("&")[0];
-        videoUrl = `https://www.youtube.com/embed/${videoId}`;
-      } else if (v.url.includes("youtu.be/")) {
-        const videoId = v.url.split("youtu.be/")[1].split("?")[0];
-        videoUrl = `https://www.youtube.com/embed/${videoId}`;
-      }
-
+      // Store the full URL directly (same as POST endpoint for consistency)
       return {
         id: v.id || undefined, // Keep existing ID if available
         title: v.title || `Video ${index + 1}`,
-        url: videoUrl,
+        url: v.url.trim(), // Store full URL without conversion
         position: index + 1,
         published: true,
       };
@@ -252,6 +248,7 @@ export async function PUT(request) {
     );
   } catch (err) {
     console.error("Error updating course:", err);
+    console.error("Request body:", await request.json().catch(() => ({}))); // Log request body for debugging
     return NextResponse.json(
       {
         error: err.message || "Failed to update course",

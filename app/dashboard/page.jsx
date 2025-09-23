@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import styles from "./dashboard.module.css";
 import {
@@ -16,6 +16,7 @@ import {
   FaLock,
   FaDownload,
   FaSpinner,
+  FaSync,
 } from "react-icons/fa";
 import { ImCancelCircle } from "react-icons/im";
 import { FiMenu, FiX } from "react-icons/fi";
@@ -26,35 +27,33 @@ export default function Dashboard() {
   const [error, setError] = useState(null);
   const [darkMode, setDarkMode] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+
   const playerRefs = useRef({});
   const intervalRefs = useRef({});
+  const updatedDurations = useRef(new Set());
   const router = useRouter();
 
   // Check if user is authenticated
-  const isAuthenticated = () => {
+  const isAuthenticated = useCallback(() => {
     if (typeof window !== "undefined") {
       const token = localStorage.getItem("lms_token");
       return !!token;
     }
     return false;
-  };
+  }, []);
 
-  useEffect(() => {
-    // Redirect to login if not authenticated
-    if (!isAuthenticated()) {
-      router.push("/login?from=/dashboard");
-      return;
-    }
-
-    fetchDashboardData();
-  }, [router]);
-
-  const fetchDashboardData = async () => {
+  // Fetch dashboard data
+  const fetchDashboardData = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
 
-      // Get token from localStorage
+      if (!isAuthenticated()) {
+        router.push("/login?from=/dashboard");
+        return;
+      }
+
       const token = localStorage.getItem("lms_token");
       if (!token) {
         console.log("No token found, redirecting to login");
@@ -67,6 +66,7 @@ export default function Dashboard() {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
+        cache: "no-store",
       });
 
       if (res.status === 401) {
@@ -89,15 +89,122 @@ export default function Dashboard() {
       console.error("Dashboard fetch error:", err);
       setError(err.message);
 
-      // If it's an authentication error, redirect to login
       if (err.message.includes("401") || err.message.includes("Unauthorized")) {
         localStorage.removeItem("lms_token");
         router.push("/login?from=/dashboard");
       }
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
-  };
+  }, [isAuthenticated, router]);
+
+  // Refresh dashboard data
+  const refreshDashboardData = useCallback(async () => {
+    setRefreshing(true);
+    await fetchDashboardData();
+  }, [fetchDashboardData]);
+
+  useEffect(() => {
+    fetchDashboardData();
+  }, [fetchDashboardData]);
+
+  // Update video data in database
+  const updateVideoData = useCallback(
+    async (videoId, duration, progress, completed) => {
+      try {
+        const token = localStorage.getItem("lms_token");
+        if (!token) return;
+
+        const updateData = {
+          videoId: parseInt(videoId),
+        };
+
+        // Only include duration if it's valid and greater than 0
+        if (duration !== undefined && duration > 0) {
+          updateData.duration = Math.round(duration);
+        }
+
+        // Include progress update if provided
+        if (progress !== undefined || completed !== undefined) {
+          updateData.progress = progress || 0;
+          updateData.completed = completed || false;
+        }
+
+        const response = await fetch("/api/dashboard", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(updateData),
+        });
+
+        if (!response.ok) {
+          throw new Error(`Failed to update video data: ${response.status}`);
+        }
+
+        const result = await response.json();
+        return result;
+      } catch (error) {
+        console.error("Failed to update video data in database:", error);
+        throw error;
+      }
+    },
+    []
+  );
+
+  // Enhanced video duration update function
+  const updateVideoDuration = useCallback(
+    async (courseId, videoId, duration) => {
+      if (!duration || duration <= 0) return;
+
+      const durationKey = `${videoId}-${Math.round(duration)}`;
+
+      // Only update if we haven't already updated this specific duration
+      if (!updatedDurations.current.has(durationKey)) {
+        try {
+          // Update local state immediately for better UX
+          setDashboardData((prev) => {
+            if (!prev?.courses) return prev;
+
+            const newCourses = prev.courses.map((course) => {
+              if (course.id !== courseId) return course;
+
+              const newVideos = course.videos.map((v) => {
+                if (v.id === videoId) {
+                  return {
+                    ...v,
+                    duration: duration,
+                    formattedDuration: formatDuration(duration),
+                  };
+                }
+                return v;
+              });
+
+              return {
+                ...course,
+                videos: newVideos,
+              };
+            });
+
+            return { ...prev, courses: newCourses };
+          });
+
+          // Save to database
+          await updateVideoData(videoId, duration);
+          updatedDurations.current.add(durationKey);
+
+          console.log(
+            `Duration updated for video ${videoId}: ${duration} seconds`
+          );
+        } catch (error) {
+          console.error("Error updating video duration:", error);
+        }
+      }
+    },
+    [updateVideoData]
+  );
 
   const toggleDarkMode = () => setDarkMode(!darkMode);
   const toggleMobileMenu = () => setMobileMenuOpen(!mobileMenuOpen);
@@ -116,26 +223,22 @@ export default function Dashboard() {
       .padStart(2, "0")}`;
   };
 
-  // Improved YouTube ID extraction
+  // YouTube ID extraction
   const getYouTubeId = (url) => {
     if (!url) return null;
 
-    // Handle embed URLs
     if (url.includes("youtube.com/embed/")) {
       return url.split("youtube.com/embed/")[1].split("?")[0];
     }
 
-    // Handle watch URLs
     if (url.includes("youtube.com/watch?v=")) {
       return url.split("v=")[1].split("&")[0];
     }
 
-    // Handle youtu.be URLs
     if (url.includes("youtu.be/")) {
       return url.split("youtu.be/")[1].split("?")[0];
     }
 
-    // Handle already extracted IDs
     if (url.length === 11 && !url.includes("/") && !url.includes("?")) {
       return url;
     }
@@ -143,7 +246,7 @@ export default function Dashboard() {
     return null;
   };
 
-  // Improved YouTube API loading
+  // YouTube API loading
   const loadYouTubeAPI = () => {
     return new Promise((resolve) => {
       if (window.YT && window.YT.Player) {
@@ -151,7 +254,6 @@ export default function Dashboard() {
         return;
       }
 
-      // Check if script is already loading
       if (
         document.querySelector(
           'script[src="https://www.youtube.com/iframe_api"]'
@@ -169,7 +271,6 @@ export default function Dashboard() {
       const tag = document.createElement("script");
       tag.src = "https://www.youtube.com/iframe_api";
       tag.onload = () => {
-        // YouTube API doesn't fire onload, so we need to check for YT
         const checkYT = setInterval(() => {
           if (window.YT && window.YT.Player) {
             clearInterval(checkYT);
@@ -180,6 +281,148 @@ export default function Dashboard() {
       document.body.appendChild(tag);
     });
   };
+
+  // Enhanced progress update function
+  const updateVideoProgress = useCallback(
+    async (courseId, videoId, progress, completed) => {
+      try {
+        // Update database first
+        await updateVideoData(videoId, null, progress, completed);
+
+        // Then update local state
+        setDashboardData((prev) => {
+          if (!prev?.courses) return prev;
+
+          const newCourses = prev.courses.map((course) => {
+            if (course.id !== courseId) return course;
+
+            const newVideos = course.videos.map((v, index) => {
+              if (v.id === videoId) {
+                return { ...v, progress, completed };
+              }
+
+              // Unlock next video if current video is completed
+              if (
+                completed &&
+                index > 0 &&
+                course.videos[index - 1]?.id === videoId
+              ) {
+                return { ...v, locked: false };
+              }
+
+              return v;
+            });
+
+            const completedVideos = newVideos.filter((v) => v.completed).length;
+            const totalVideos = newVideos.length;
+            const courseCompleted =
+              totalVideos > 0 && completedVideos === totalVideos;
+
+            return {
+              ...course,
+              videos: newVideos,
+              progress: {
+                videosWatched: completedVideos,
+                totalVideos,
+                completed: courseCompleted,
+                completionPercentage: courseCompleted
+                  ? 100
+                  : Math.round((completedVideos / totalVideos) * 100),
+              },
+            };
+          });
+
+          return { ...prev, courses: newCourses };
+        });
+      } catch (error) {
+        console.error("Error updating video progress:", error);
+      }
+    },
+    [updateVideoData]
+  );
+
+  // Handle video state change with real-time duration updates
+  const handleVideoStateChange = useCallback(
+    (courseId, videoId, event) => {
+      const player = playerRefs.current[videoId];
+      if (!player) return;
+
+      // Clear existing interval
+      if (intervalRefs.current[videoId]) {
+        clearInterval(intervalRefs.current[videoId]);
+      }
+
+      if (event.data === window.YT.PlayerState.PLAYING) {
+        // Get and update duration when video starts playing
+        try {
+          const duration = player.getDuration();
+          if (duration && duration > 0) {
+            updateVideoDuration(courseId, videoId, duration);
+          }
+        } catch (e) {
+          console.error("Error getting duration on play:", e);
+        }
+
+        // Start progress tracking
+        intervalRefs.current[videoId] = setInterval(async () => {
+          try {
+            const duration = player.getDuration();
+            const currentTime = player.getCurrentTime();
+
+            // Update duration periodically while playing
+            if (duration && duration > 0) {
+              updateVideoDuration(courseId, videoId, duration);
+            }
+
+            let progress =
+              duration > 0 ? Math.floor((currentTime / duration) * 100) : 0;
+            const isEnded = event.data === window.YT.PlayerState.ENDED;
+            const completed = isEnded || progress >= 95;
+
+            if (completed) progress = 100;
+
+            // Update both local state and database
+            await updateVideoProgress(courseId, videoId, progress, completed);
+
+            if (completed) {
+              clearInterval(intervalRefs.current[videoId]);
+              console.log(`Video ${videoId} completed`);
+            }
+          } catch (e) {
+            console.error("Error in progress tracking:", e);
+            clearInterval(intervalRefs.current[videoId]);
+          }
+        }, 3000);
+      }
+
+      if (event.data === window.YT.PlayerState.PAUSED) {
+        // Update duration when paused
+        try {
+          const duration = player.getDuration();
+          if (duration && duration > 0) {
+            updateVideoDuration(courseId, videoId, duration);
+          }
+        } catch (e) {
+          console.error("Error getting duration on pause:", e);
+        }
+      }
+
+      if (event.data === window.YT.PlayerState.ENDED) {
+        // Final updates when video ends
+        try {
+          const duration = player.getDuration();
+          if (duration && duration > 0) {
+            updateVideoDuration(courseId, videoId, duration);
+          }
+        } catch (e) {
+          console.error("Error getting final duration:", e);
+        }
+
+        updateVideoProgress(courseId, videoId, 100, true);
+      }
+    },
+    [updateVideoDuration, updateVideoProgress]
+  );
 
   const initPlayers = async () => {
     if (!dashboardData?.courses) return;
@@ -202,12 +445,12 @@ export default function Dashboard() {
               videoId,
               playerVars: {
                 autoplay: 0,
-                controls: 0, // No default controls
-                modestbranding: 1, // Hide YouTube branding
-                rel: 0, // No suggested videos
-                iv_load_policy: 3, // Hide annotations
-                fs: 0, // No fullscreen
-                disablekb: 1, // No keyboard shortcuts
+                controls: 0,
+                modestbranding: 1,
+                rel: 0,
+                iv_load_policy: 3,
+                fs: 0,
+                disablekb: 1,
                 playsinline: 1,
                 enablejsapi: 1,
                 origin: window.location.origin,
@@ -216,7 +459,12 @@ export default function Dashboard() {
                 onReady: (event) => {
                   try {
                     const duration = event.target.getDuration();
-                    updateVideoDuration(course.id, video.id, duration);
+
+                    // Always update duration when video loads
+                    if (duration && duration > 0) {
+                      updateVideoDuration(course.id, video.id, duration);
+                    }
+
                     hideYouTubeUI(video.id);
                     addSecurityOverlay(video.id, event.target);
                   } catch (e) {
@@ -239,9 +487,6 @@ export default function Dashboard() {
     }
   };
 
-  /**
-   * 🔥 Hide YouTube UI elements
-   */
   const hideYouTubeUI = (videoId) => {
     setTimeout(() => {
       const iframe = document
@@ -249,7 +494,6 @@ export default function Dashboard() {
         ?.querySelector("iframe");
       if (!iframe) return;
 
-      // Try injecting CSS into iframe (if same-origin policy allows)
       try {
         const style = document.createElement("style");
         style.textContent = `
@@ -263,14 +507,11 @@ export default function Dashboard() {
       `;
         iframe.contentWindow?.document?.head?.appendChild(style);
       } catch {
-        // If iframe injection is blocked, fallback overlay will block clicks
+        // Fallback to overlay
       }
     }, 1000);
   };
 
-  /**
-   * 🔥 Overlay to block copying URL, title clicks & right-click
-   */
   const addSecurityOverlay = (videoId, player) => {
     const container = document.getElementById(`video-${videoId}`);
     if (!container) return;
@@ -287,10 +528,8 @@ export default function Dashboard() {
     overlay.style.background = "transparent";
     overlay.style.cursor = "pointer";
 
-    // 🔥 Disable right-click
     overlay.oncontextmenu = (e) => e.preventDefault();
 
-    // 🔥 Click to play/pause
     overlay.addEventListener("click", () => {
       if (player.getPlayerState() === window.YT.PlayerState.PLAYING) {
         player.pauseVideo();
@@ -302,152 +541,14 @@ export default function Dashboard() {
     container.parentElement.appendChild(overlay);
   };
 
-  /**
-   * Attempts to hide branding & extra controls visually.
-   * Can't modify YouTube iframe internally due to cross-origin, so we overlay.
-   */
-  const hideYouTubeControls = (player) => {
-    try {
-      const iframe = player.getIframe();
-      if (!iframe) return;
-
-      // Style iframe container
-      iframe.style.pointerEvents = "none"; // Block all interactions
-
-      // Add global CSS to hide YouTube branding (if accessible)
-      const style = document.createElement("style");
-      style.textContent = `
-      iframe[src*="youtube.com"] {
-        border: none !important;
-      }
-    `;
-      document.head.appendChild(style);
-    } catch (error) {
-      console.log("Could not modify YouTube iframe:", error);
-    }
-  };
-
-  const updateVideoDuration = (courseId, videoId, duration) => {
-    setDashboardData((prev) => {
-      if (!prev?.courses) return prev;
-
-      const newCourses = prev.courses.map((course) => {
-        if (course.id !== courseId) return course;
-
-        const newVideos = course.videos.map((v) => {
-          if (v.id === videoId) {
-            return {
-              ...v,
-              duration,
-              formattedDuration: formatDuration(duration),
-            };
-          }
-          return v;
-        });
-
-        return {
-          ...course,
-          videos: newVideos,
-        };
-      });
-
-      return { ...prev, courses: newCourses };
-    });
-  };
-
-  const handleVideoStateChange = (courseId, videoId, event) => {
-    const player = playerRefs.current[videoId];
-    if (!player) return;
-
-    // Clear existing interval
-    if (intervalRefs.current[videoId]) {
-      clearInterval(intervalRefs.current[videoId]);
-    }
-
-    if (event.data === window.YT.PlayerState.PLAYING) {
-      intervalRefs.current[videoId] = setInterval(() => {
-        try {
-          const duration = player.getDuration();
-          const currentTime = player.getCurrentTime();
-          let progress = Math.floor((currentTime / duration) * 100);
-          const completed =
-            event.data === window.YT.PlayerState.ENDED || progress >= 95;
-
-          if (completed) progress = 100;
-
-          updateVideoProgress(courseId, videoId, progress, completed);
-
-          if (completed) {
-            clearInterval(intervalRefs.current[videoId]);
-          }
-        } catch (e) {
-          console.error("Error in progress tracking:", e);
-          clearInterval(intervalRefs.current[videoId]);
-        }
-      }, 1000);
-    }
-
-    if (event.data === window.YT.PlayerState.ENDED) {
-      updateVideoProgress(courseId, videoId, 100, true);
-    }
-  };
-
-  const updateVideoProgress = (courseId, videoId, progress, completed) => {
-    setDashboardData((prev) => {
-      if (!prev?.courses) return prev;
-
-      const newCourses = prev.courses.map((course) => {
-        if (course.id !== courseId) return course;
-
-        const newVideos = course.videos.map((v, index) => {
-          if (v.id === videoId) {
-            return { ...v, progress, completed };
-          }
-
-          // Unlock next video if current video is completed
-          if (
-            completed &&
-            index > 0 &&
-            course.videos[index - 1]?.id === videoId
-          ) {
-            return { ...v, locked: false };
-          }
-
-          return v;
-        });
-
-        const completedVideos = newVideos.filter((v) => v.completed).length;
-        const courseCompleted = completedVideos === newVideos.length;
-
-        return {
-          ...course,
-          videos: newVideos,
-          progress: {
-            videosWatched: completedVideos,
-            completed: courseCompleted,
-            completionPercentage: courseCompleted
-              ? 100
-              : Math.round((completedVideos / newVideos.length) * 100),
-          },
-        };
-      });
-
-      return { ...prev, courses: newCourses };
-    });
-  };
-
-  useEffect(() => {
-    fetchDashboardData();
-  }, []);
-
-  // Init players once when dashboardData loads
+  // Initialize players when data loads
   useEffect(() => {
     if (dashboardData) {
       initPlayers();
     }
   }, [dashboardData]);
 
-  // Cleanup ONLY on unmount
+  // Cleanup on unmount
   useEffect(() => {
     return () => {
       Object.values(playerRefs.current).forEach((player) => {
@@ -459,8 +560,21 @@ export default function Dashboard() {
       Object.values(intervalRefs.current).forEach((interval) => {
         if (interval) clearInterval(interval);
       });
+
+      updatedDurations.current.clear();
     };
   }, []);
+
+  // Auto-refresh data every 30 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (dashboardData && !loading) {
+        refreshDashboardData();
+      }
+    }, 30000);
+
+    return () => clearInterval(interval);
+  }, [dashboardData, loading, refreshDashboardData]);
 
   if (loading)
     return (
@@ -497,6 +611,13 @@ export default function Dashboard() {
       <div className={styles.mobileHeader}>
         <button className={styles.menuToggle} onClick={toggleMobileMenu}>
           {mobileMenuOpen ? <ImCancelCircle size={24} /> : <FiMenu size={24} />}
+        </button>
+        <button
+          className={styles.refreshBtn}
+          onClick={refreshDashboardData}
+          disabled={refreshing}
+        >
+          <FaSync className={refreshing ? styles.spinning : ""} />
         </button>
       </div>
 
@@ -563,7 +684,9 @@ export default function Dashboard() {
       {/* Main Content */}
       <div className={styles.mainContent}>
         <div className={styles.contentHeader}>
-          <h1>Welcome back, {dashboardData?.user?.name?.split(" ")[0]}!</h1>
+          <div className={styles.headerTop}>
+            <h1>Welcome back, {dashboardData?.user?.name?.split(" ")[0]}!</h1>
+          </div>
           <p>Continue your learning journey</p>
         </div>
 
@@ -571,6 +694,9 @@ export default function Dashboard() {
           <h2 className={styles.sectionTitle}>
             <FaBook className={styles.sectionIcon} />
             Your Courses
+            <span className={styles.courseCount}>
+              ({dashboardData?.courses?.length || 0})
+            </span>
           </h2>
 
           {dashboardData?.courses?.length === 0 ? (
@@ -594,13 +720,15 @@ export default function Dashboard() {
                         />
                       </div>
                       <span>
-                        {course.progress.completionPercentage}% Complete
+                        {course.progress.completionPercentage}% Complete (
+                        {course.progress.videosWatched}/
+                        {course.progress.totalVideos} videos)
                       </span>
                     </div>
                   </div>
 
                   <div className={styles.videosList}>
-                    {course.videos.map((video) => (
+                    {course.videos.map((video, index) => (
                       <div key={video.id} className={styles.videoCard}>
                         <div className={styles.videoHeader}>
                           <h4>
@@ -620,6 +748,14 @@ export default function Dashboard() {
                           </h4>
                           <span className={styles.videoDuration}>
                             {video.formattedDuration || "--:--"}
+                            {video.duration && (
+                              <span
+                                className={styles.durationSaved}
+                                title="Duration saved in database"
+                              >
+                                💾
+                              </span>
+                            )}
                           </span>
                         </div>
 
@@ -667,6 +803,11 @@ export default function Dashboard() {
                                 />
                               </div>
                               <span>{video.progress || 0}% Watched</span>
+                              {video.completed && (
+                                <span className={styles.completedBadge}>
+                                  Completed
+                                </span>
+                              )}
                             </div>
                           </>
                         )}
