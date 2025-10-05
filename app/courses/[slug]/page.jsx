@@ -5,11 +5,11 @@ import Image from "next/image";
 import courses from "../../utils/course";
 import Link from "next/link";
 import styles from "../CourseDetail.module.css";
-import Nav from '../../components/Header/Page'
-
+import Nav from "../../components/Header/Page";
+import Footer from "../../components/Footer/Page";
 export default function CourseDetailPage() {
-  const { id } = useParams();
-  const course = courses.find((c) => c.id === Number(id));
+  const { slug } = useParams();
+  const course = courses.find((c) => c.slug === slug);
 
   if (!course) {
     return (
@@ -27,7 +27,7 @@ export default function CourseDetailPage() {
 
   return (
     <div>
-        <Nav />
+      <Nav />
       <div className={styles.container}>
         <div className={styles.header}>
           <div className={styles.hero}>
@@ -42,7 +42,7 @@ export default function CourseDetailPage() {
 
           <div className={styles.titleWrapper}>
             <h1 className={styles.title}>{course.title}</h1>
-            <div className={styles.priceTag}>₹750</div>
+            <div className={styles.priceTag}>₹7500</div>
           </div>
 
           <div className={styles.metaContainer}>
@@ -60,20 +60,14 @@ export default function CourseDetailPage() {
             </div>
           </div>
 
-          <p className={styles.description}>{course.description}</p>
+          <p className={styles.description}>{course.shortDescription}</p>
         </div>
 
         <div className={styles.contentGrid}>
           <main>
             <section className={styles.section}>
               <h2 className={styles.sectionTitle}>Course Overview</h2>
-              <p>
-                This comprehensive course on {course.title} is designed to take
-                you from fundamental concepts to advanced applications. Through
-                a combination of theoretical knowledge and practical exercises,
-                you'll gain hands-on experience that prepares you for real-world
-                challenges in the field.
-              </p>
+              <p>{course.longDescription}</p>
             </section>
 
             <section className={styles.section}>
@@ -136,6 +130,8 @@ export default function CourseDetailPage() {
           </aside>
         </div>
       </div>
+
+      <Footer />
     </div>
   );
 }

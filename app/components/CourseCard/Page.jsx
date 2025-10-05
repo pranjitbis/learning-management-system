@@ -16,10 +16,10 @@ export default function CourseCard({ course }) {
       />
       <div className={styles.cardContent}>
         <h3>{course.title}</h3>
-        <p>{course.description}</p>
+        <p>{course.shortDescription}</p>
         <div className={styles.cardFooter}>
           <div className={styles.coursePrice}>₹7500</div>
-          <Link href={`/courses/${course.id}`}>
+          <Link href={`/courses/${course.slug}`}>
             <button className={styles.detailsButton}>View Details</button>
           </Link>
         </div>

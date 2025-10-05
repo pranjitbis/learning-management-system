@@ -2,7 +2,7 @@
   max-width: 1200px;
   margin: 0 auto;
   padding: 2rem;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 
 .header {
@@ -14,15 +14,11 @@
 
 .hero {
   position: relative;
-  height: 400px;
+  height: 520px;
+  width: 70%;
+  margin: 50px auto;
   border-radius: 16px;
   overflow: hidden;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
-}
-
-.heroImage {
-  object-fit: cover;
-  object-position: center;
 }
 
 .titleWrapper {
@@ -101,7 +97,7 @@
 }
 
 .sectionTitle::after {
-  content: '';
+  content: "";
   position: absolute;
   bottom: 0;
   left: 0;
@@ -223,15 +219,15 @@
   .contentGrid {
     grid-template-columns: 1fr;
   }
-  
+
   .titleWrapper {
     flex-direction: column;
   }
-  
+
   .featureList {
     grid-template-columns: 1fr;
   }
-  
+
   .hero {
     height: 250px;
   }

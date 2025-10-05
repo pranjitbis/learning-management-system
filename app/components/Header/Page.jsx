@@ -20,9 +20,14 @@ export default function Header() {
   const toggleTheme = () => {
     const newMode = !isDarkMode;
     setIsDarkMode(newMode);
-    document.documentElement.setAttribute("data-theme", newMode ? "dark" : "light");
+    document.documentElement.setAttribute(
+      "data-theme",
+      newMode ? "dark" : "light"
+    );
     localStorage.setItem("theme", newMode ? "dark" : "light");
-    document.body.style.backgroundColor = newMode ? "var(--background)" : "var(--bg-primary)";
+    document.body.style.backgroundColor = newMode
+      ? "var(--background)"
+      : "var(--bg-primary)";
   };
 
   const toggleDropdown = (dropdownName) => {
@@ -34,7 +39,9 @@ export default function Header() {
     const isDark = savedTheme === "dark";
     setIsDarkMode(isDark);
     document.documentElement.setAttribute("data-theme", savedTheme);
-    document.body.style.backgroundColor = isDark ? "var(--background)" : "var(--bg-primary)";
+    document.body.style.backgroundColor = isDark
+      ? "var(--background)"
+      : "var(--bg-primary)";
     document.body.style.transition = "background-color 0.3s ease";
 
     const handleScroll = () => setIsScrolled(window.scrollY > 10);
@@ -57,7 +64,13 @@ export default function Header() {
       <div className={`container ${styles.headerContainer}`}>
         {/* Logo */}
         <Link href="/" className={styles.logo}>
-          <Image src={logo} alt="Elenxia Logo" width={150} height={45} priority />
+          <Image
+            src={logo}
+            alt="Elenxia Logo"
+            width={150}
+            height={45}
+            priority
+          />
         </Link>
 
         {/* Mobile menu toggle button */}
@@ -71,11 +84,18 @@ export default function Header() {
         </button>
 
         {/* Nav Links */}
-        <div className={`${styles.navWrapper} ${isMenuOpen ? styles.active : ""}`}>
+        <div
+          className={`${styles.navWrapper} ${isMenuOpen ? styles.active : ""}`}
+        >
           <nav className={styles.nav}>
             <ul className={styles.navList}>
               <li>
-                <Link href="/" className={`${styles.navLink} ${isActive("/") ? styles.active : ""}`}>
+                <Link
+                  href="/"
+                  className={`${styles.navLink} ${
+                    isActive("/") ? styles.active : ""
+                  }`}
+                >
                   Home
                 </Link>
               </li>
@@ -91,6 +111,7 @@ export default function Header() {
                 >
                   Courses
                 </button>
+
                 <div
                   className={`${styles.dropdownContent} ${
                     activeDropdown === "courses" ? styles.show : ""
@@ -104,6 +125,7 @@ export default function Header() {
                   >
                     Web Development
                   </Link>
+
                   <Link
                     href="/courses/data-science"
                     className={`${styles.dropdownLink} ${
@@ -112,10 +134,78 @@ export default function Header() {
                   >
                     Data Science
                   </Link>
+
                   <Link
-                    href="/courses/cyber-security"
+                    href="/courses/ai-machine-learning"
                     className={`${styles.dropdownLink} ${
-                      isActive("/courses/cyber-security") ? styles.active : ""
+                      isActive("/courses/ai-machine-learning")
+                        ? styles.active
+                        : ""
+                    }`}
+                  >
+                    AI / Machine Learning
+                  </Link>
+
+                  <Link
+                    href="/courses/blockchain"
+                    className={`${styles.dropdownLink} ${
+                      isActive("/courses/blockchain") ? styles.active : ""
+                    }`}
+                  >
+                    Blockchain Development
+                  </Link>
+
+                  <Link
+                    href="/courses/cloud-devops"
+                    className={`${styles.dropdownLink} ${
+                      isActive("/courses/cloud-devops") ? styles.active : ""
+                    }`}
+                  >
+                    Cloud / DevOps
+                  </Link>
+
+                  <Link
+                    href="/courses/design"
+                    className={`${styles.dropdownLink} ${
+                      isActive("/courses/design") ? styles.active : ""
+                    }`}
+                  >
+                    UI / UX Design
+                  </Link>
+
+                  <Link
+                    href="/courses/marketing"
+                    className={`${styles.dropdownLink} ${
+                      isActive("/courses/marketing") ? styles.active : ""
+                    }`}
+                  >
+                    Digital Marketing
+                  </Link>
+
+                  <Link
+                    href="/courses/database"
+                    className={`${styles.dropdownLink} ${
+                      isActive("/courses/database") ? styles.active : ""
+                    }`}
+                  >
+                    Database / SQL
+                  </Link>
+
+                  <Link
+                    href="/courses/programming"
+                    className={`${styles.dropdownLink} ${
+                      isActive("/courses/programming") ? styles.active : ""
+                    }`}
+                  >
+                    Programming (C, C++, Java)
+                  </Link>
+
+                  <Link
+                    href="/courses/information-security"
+                    className={`${styles.dropdownLink} ${
+                      isActive("/courses/information-security")
+                        ? styles.active
+                        : ""
                     }`}
                   >
                     Cyber Security
@@ -126,7 +216,9 @@ export default function Header() {
               <li>
                 <Link
                   href="/terms-conditions"
-                  className={`${styles.navLink} ${isActive("/terms-conditions") ? styles.active : ""}`}
+                  className={`${styles.navLink} ${
+                    isActive("/terms-conditions") ? styles.active : ""
+                  }`}
                 >
                   Terms & Conditions
                 </Link>
@@ -134,7 +226,9 @@ export default function Header() {
               <li>
                 <Link
                   href="/about"
-                  className={`${styles.navLink} ${isActive("/about") ? styles.active : ""}`}
+                  className={`${styles.navLink} ${
+                    isActive("/about") ? styles.active : ""
+                  }`}
                 >
                   About
                 </Link>
@@ -142,7 +236,9 @@ export default function Header() {
               <li>
                 <Link
                   href="/contact"
-                  className={`${styles.navLink} ${isActive("/contact") ? styles.active : ""}`}
+                  className={`${styles.navLink} ${
+                    isActive("/contact") ? styles.active : ""
+                  }`}
                 >
                   Contact
                 </Link>
@@ -150,7 +246,9 @@ export default function Header() {
               <li>
                 <Link
                   href="/hackathon"
-                  className={`${styles.navLink} ${isActive("/hackathon") ? styles.active : ""}`}
+                  className={`${styles.navLink} ${
+                    isActive("/hackathon") ? styles.active : ""
+                  }`}
                 >
                   Hackathon
                 </Link>
@@ -162,7 +260,9 @@ export default function Header() {
           <div className={styles.headerActions}>
             <Link
               href="/login"
-              className={`${styles.btn} ${styles.btnLogin} ${isActive("/login") ? styles.active : ""}`}
+              className={`${styles.btn} ${styles.btnLogin} ${
+                isActive("/login") ? styles.active : ""
+              }`}
             >
               Sign In
             </Link>
