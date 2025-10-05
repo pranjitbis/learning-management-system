@@ -7,7 +7,7 @@ import Image from "next/image";
 import { FaBars, FaTimes } from "react-icons/fa";
 import logo from "../../../public/logo/Elenxia_Colored_NoTag.svg";
 import styles from "./Header.module.css";
-
+import courses from "../../utils/course";
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
@@ -117,99 +117,17 @@ export default function Header() {
                     activeDropdown === "courses" ? styles.show : ""
                   }`}
                 >
-                  <Link
-                    href="/courses/web-development"
-                    className={`${styles.dropdownLink} ${
-                      isActive("/courses/web-development") ? styles.active : ""
-                    }`}
-                  >
-                    Web Development
-                  </Link>
-
-                  <Link
-                    href="/courses/data-science"
-                    className={`${styles.dropdownLink} ${
-                      isActive("/courses/data-science") ? styles.active : ""
-                    }`}
-                  >
-                    Data Science
-                  </Link>
-
-                  <Link
-                    href="/courses/ai-machine-learning"
-                    className={`${styles.dropdownLink} ${
-                      isActive("/courses/ai-machine-learning")
-                        ? styles.active
-                        : ""
-                    }`}
-                  >
-                    AI / Machine Learning
-                  </Link>
-
-                  <Link
-                    href="/courses/blockchain"
-                    className={`${styles.dropdownLink} ${
-                      isActive("/courses/blockchain") ? styles.active : ""
-                    }`}
-                  >
-                    Blockchain Development
-                  </Link>
-
-                  <Link
-                    href="/courses/cloud-devops"
-                    className={`${styles.dropdownLink} ${
-                      isActive("/courses/cloud-devops") ? styles.active : ""
-                    }`}
-                  >
-                    Cloud / DevOps
-                  </Link>
-
-                  <Link
-                    href="/courses/design"
-                    className={`${styles.dropdownLink} ${
-                      isActive("/courses/design") ? styles.active : ""
-                    }`}
-                  >
-                    UI / UX Design
-                  </Link>
-
-                  <Link
-                    href="/courses/marketing"
-                    className={`${styles.dropdownLink} ${
-                      isActive("/courses/marketing") ? styles.active : ""
-                    }`}
-                  >
-                    Digital Marketing
-                  </Link>
-
-                  <Link
-                    href="/courses/database"
-                    className={`${styles.dropdownLink} ${
-                      isActive("/courses/database") ? styles.active : ""
-                    }`}
-                  >
-                    Database / SQL
-                  </Link>
-
-                  <Link
-                    href="/courses/programming"
-                    className={`${styles.dropdownLink} ${
-                      isActive("/courses/programming") ? styles.active : ""
-                    }`}
-                  >
-                    Programming (C, C++, Java)
-                  </Link>
-
-                  <Link
-                    href="/courses/information-security"
-                    className={`${styles.dropdownLink} ${
-                      isActive("/courses/information-security")
-                        ? styles.active
-                        : ""
-                    }`}
-                  >
-                    Cyber Security
-                  </Link>
+                  {courses.map((course) => (
+                    <Link
+                      key={course.slug}
+                      href={`/courses/${course.slug}`}
+                      className={`${styles.dropdownLink} ${
+                        isActive(`/courses/${course.slug}`) ? styles.active : ""
+                      }`}
+                    >
+                      {course.title}
+                    </Link>
+                  ))}
                 </div>
               </li>
 
