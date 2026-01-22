@@ -159,7 +159,7 @@ export default function AdminUsersPage() {
       return;
 
     try {
-      const res = await fetch(`/api/user-access?id=${accessId}`, {
+      const res = await fetch(`/api/users?id=${accessId}&type=access`, {
         method: "DELETE",
       });
 

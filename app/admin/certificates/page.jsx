@@ -22,6 +22,7 @@ export default function AdminCertificatesPage() {
   const [uploadStatus, setUploadStatus] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [show, setShow] = useState(false);
+
   const clickData = () => {
     setShow(!show);
   };
@@ -48,21 +49,79 @@ export default function AdminCertificatesPage() {
   }, []);
 
   const fetchUsers = async () => {
-    const res = await fetch("/api/users");
-    if (res.ok) setUsers(await res.json());
-    else if (res.status === 401) handleUnauthorized();
+    try {
+      const res = await fetch("/api/users");
+      if (res.ok) {
+        const data = await res.json();
+        // Handle different response formats
+        const usersArray = Array.isArray(data)
+          ? data
+          : data?.data
+            ? data.data
+            : data?.users
+              ? data.users
+              : [];
+        setUsers(usersArray || []);
+      } else if (res.status === 401) {
+        handleUnauthorized();
+      }
+    } catch (error) {
+      console.error("Error fetching users:", error);
+    }
   };
 
   const fetchCourses = async () => {
-    const res = await fetch("/api/courses");
-    if (res.ok) setCourses(await res.json());
-    else if (res.status === 401) handleUnauthorized();
+    try {
+      const res = await fetch("/api/courses");
+      if (res.ok) {
+        const data = await res.json();
+        console.log("Courses API response:", data); // Debug log
+
+        // Handle different response formats
+        let coursesArray = [];
+        if (Array.isArray(data)) {
+          coursesArray = data;
+        } else if (data && Array.isArray(data.data)) {
+          coursesArray = data.data;
+        } else if (data && Array.isArray(data.courses)) {
+          coursesArray = data.courses;
+        } else if (data && data.success && Array.isArray(data.data)) {
+          coursesArray = data.data;
+        } else if (data && data.courses) {
+          // Try to convert to array if it's an object
+          coursesArray = Object.values(data.courses);
+        }
+
+        setCourses(coursesArray || []);
+      } else if (res.status === 401) {
+        handleUnauthorized();
+      }
+    } catch (error) {
+      console.error("Error fetching courses:", error);
+      setCourses([]); // Ensure it's always an array
+    }
   };
 
   const fetchCertificates = async () => {
-    const res = await fetch("/api/certificates");
-    if (res.ok) setCertificates(await res.json());
-    else if (res.status === 401) handleUnauthorized();
+    try {
+      const res = await fetch("/api/certificates");
+      if (res.ok) {
+        const data = await res.json();
+        // Handle different response formats
+        const certsArray = Array.isArray(data)
+          ? data
+          : data?.data
+            ? data.data
+            : data?.certificates
+              ? data.certificates
+              : [];
+        setCertificates(certsArray || []);
+      } else if (res.status === 401) {
+        handleUnauthorized();
+      }
+    } catch (error) {
+      console.error("Error fetching certificates:", error);
+    }
   };
 
   const openForm = (user) => {
@@ -119,10 +178,13 @@ export default function AdminCertificatesPage() {
     }
   };
 
-  const getUserCertificates = (userId) =>
-    certificates.filter((c) => c.userId === userId);
+  const getUserCertificates = (userId) => {
+    if (!Array.isArray(certificates)) return [];
+    return certificates.filter((c) => c.userId === userId);
+  };
 
   const getAvailableCourses = (userId) => {
+    if (!Array.isArray(courses)) return [];
     const userCerts = getUserCertificates(userId).map((c) => c.courseId);
     return courses.filter((c) => !userCerts.includes(c.id));
   };
@@ -163,6 +225,8 @@ export default function AdminCertificatesPage() {
           <tbody>
             {users.map((user) => {
               const userCertificates = getUserCertificates(user.id);
+              const availableCourses = getAvailableCourses(user.id);
+
               return (
                 <tr key={user.id}>
                   <td className={styles.idCell}>{user.id}</td>
@@ -181,7 +245,7 @@ export default function AdminCertificatesPage() {
                     <button
                       className={styles.createBtn}
                       onClick={() => openForm(user)}
-                      disabled={getAvailableCourses(user.id).length === 0}
+                      disabled={availableCourses.length === 0}
                     >
                       <FaFileUpload /> Assign
                     </button>
@@ -189,52 +253,64 @@ export default function AdminCertificatesPage() {
                   <td className={styles.certificatesCell}>
                     {userCertificates.length > 0 ? (
                       <ul className={styles.certificateList}>
-                        {userCertificates.map((cert) => (
-                          <li key={cert.id} className={styles.certificateItem}>
-                            <div className={styles.certificateInfo}>
-                              <span className={styles.courseTitle}>
-                                {cert.course?.title || "Course Deleted"}
-                              </span>
-                              <span
-                                className={`${styles.statusBadge} ${
-                                  cert.approved
-                                    ? styles.approved
-                                    : styles.pending
-                                }`}
-                              >
-                                {cert.approved ? <FaCheck /> : <FaTimes />}
-                                {cert.approved ? "Approved" : "Pending"}
-                              </span>
-                            </div>
-                            {show ? (
-                              <div className={styles.delete}>
-                                <h3>Confirm Deletion</h3>
-                                <p>
-                                  Are you sure you want to delete "{user.name}"?
-                                  This action cannot be undone.
-                                </p>
-                                <div className={styles.confirmMessage}>
-                                  <button onClick={clickData}>Close</button>
-                                  <button
-                                    id={styles.colors}
-                                    className={styles.deleteBtn}
-                                    onClick={() => handleDelete(cert.id)}
-                                    title="Delete certificate"
-                                  >
-                                    Delete
-                                  </button>
-                                </div>
+                        {userCertificates.map((cert) => {
+                          // Find course name for this certificate
+                          const course = Array.isArray(courses)
+                            ? courses.find((c) => c.id === cert.courseId)
+                            : null;
+
+                          return (
+                            <li
+                              key={cert.id}
+                              className={styles.certificateItem}
+                            >
+                              <div className={styles.certificateInfo}>
+                                <span className={styles.courseTitle}>
+                                  {course?.title ||
+                                    cert.course?.title ||
+                                    `Course ID: ${cert.courseId}`}
+                                </span>
+                                <span
+                                  className={`${styles.statusBadge} ${
+                                    cert.approved
+                                      ? styles.approved
+                                      : styles.pending
+                                  }`}
+                                >
+                                  {cert.approved ? <FaCheck /> : <FaTimes />}
+                                  {cert.approved ? "Approved" : "Pending"}
+                                </span>
                               </div>
-                            ) : (
-                              <button
-                                className={styles.confrom}
-                                onClick={() => clickData()}
-                              >
-                                Delete
-                              </button>
-                            )}
-                          </li>
-                        ))}
+                              {show ? (
+                                <div className={styles.delete}>
+                                  <h3>Confirm Deletion</h3>
+                                  <p>
+                                    Are you sure you want to delete "{user.name}
+                                    "? This action cannot be undone.
+                                  </p>
+                                  <div className={styles.confirmMessage}>
+                                    <button onClick={clickData}>Close</button>
+                                    <button
+                                      id={styles.colors}
+                                      className={styles.deleteBtn}
+                                      onClick={() => handleDelete(cert.id)}
+                                      title="Delete certificate"
+                                    >
+                                      Delete
+                                    </button>
+                                  </div>
+                                </div>
+                              ) : (
+                                <button
+                                  className={styles.confrom}
+                                  onClick={() => clickData()}
+                                >
+                                  Delete
+                                </button>
+                              )}
+                            </li>
+                          );
+                        })}
                       </ul>
                     ) : (
                       <span className={styles.noCertificates}>
