@@ -25,6 +25,7 @@ export default function AdminCoursesPage() {
     edit: false,
   });
   const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(null);
   const [deleteModal, setDeleteModal] = useState({
     open: false,
     courseId: null,
@@ -44,24 +45,23 @@ export default function AdminCoursesPage() {
   // Check authentication status
   const checkAuth = () => {
     if (typeof window === "undefined") return false;
-    
+
     const token = localStorage.getItem("lms_token");
     if (!token) {
       handleUnauthorized();
       return false;
     }
-    
+
     try {
-      // Verify token structure (basic check)
-      const payload = JSON.parse(atob(token.split('.')[1]));
+      const payload = JSON.parse(atob(token.split(".")[1]));
       const isExpired = payload.exp * 1000 < Date.now();
-      
+
       if (isExpired) {
         localStorage.removeItem("lms_token");
         handleUnauthorized();
         return false;
       }
-      
+
       return true;
     } catch (error) {
       localStorage.removeItem("lms_token");
@@ -83,33 +83,33 @@ export default function AdminCoursesPage() {
 
   const fetchCourses = async () => {
     if (!checkAuth()) return;
-    
+
     setIsLoading((prev) => ({ ...prev, fetch: true }));
     setError(null);
     try {
       const token = localStorage.getItem("lms_token");
-      
+
       const res = await fetch("/api/courses", {
         headers: {
-          "Authorization": `Bearer ${token}`,
-          "Content-Type": "application/json"
-        }
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
       });
-      
+
       if (res.status === 401) {
         localStorage.removeItem("lms_token");
         return handleUnauthorized();
       }
-      
+
       if (res.status === 403) {
         setError("You don't have permission to access this resource");
         return;
       }
-      
+
       if (!res.ok) throw new Error("Failed to fetch courses");
 
       const data = await res.json();
-      setCourses(data);
+      setCourses(data.courses || data);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -119,69 +119,101 @@ export default function AdminCoursesPage() {
 
   const handleAddCourse = async () => {
     if (!checkAuth()) return;
-    
-    if (
-      !newCourse.title ||
-      !newCourse.description ||
-      newCourse.videos.length === 0
-    ) {
-      setError("Please fill all fields and add at least one video!");
+
+    // Validate required fields
+    if (!newCourse.title.trim()) {
+      setError("Course title is required!");
       return;
     }
 
-    // Validate YouTube URLs
-    const invalidVideos = newCourse.videos.filter(video => 
-      !isValidYouTubeUrl(video.youtubeUrl)
+    if (!newCourse.description.trim()) {
+      setError("Course description is required!");
+      return;
+    }
+
+    if (newCourse.videos.length === 0) {
+      setError("Please add at least one video!");
+      return;
+    }
+
+    // Validate all videos have URLs
+    const emptyVideoIndex = newCourse.videos.findIndex(
+      (video) => !video.youtubeUrl || !video.youtubeUrl.trim(),
     );
-    
+
+    if (emptyVideoIndex !== -1) {
+      setError(
+        `Please enter a YouTube URL for Video ${emptyVideoIndex + 1} (${newCourse.videos[emptyVideoIndex].title || "Untitled"})`,
+      );
+      return;
+    }
+
+    // Validate YouTube URLs format
+    const invalidVideos = newCourse.videos.filter(
+      (video) => video.youtubeUrl && !isValidYouTubeUrl(video.youtubeUrl),
+    );
+
     if (invalidVideos.length > 0) {
-      setError("Please enter valid YouTube URLs");
+      setError(
+        "Please enter valid YouTube URLs (youtube.com or youtu.be links)",
+      );
       return;
     }
 
     setIsLoading((prev) => ({ ...prev, add: true }));
     setError(null);
-    
+
     try {
       const token = localStorage.getItem("lms_token");
 
+      // Prepare videos - send full URLs, not just IDs
       const videosForBackend = newCourse.videos.map((v) => ({
-        title: v.title.trim(),
-        url: extractYouTubeId(v.youtubeUrl),
+        title:
+          v.title.trim() ||
+          `Video ${v.position || newCourse.videos.indexOf(v) + 1}`,
+        url: v.youtubeUrl.trim(), // Send full URL
       }));
 
-      const courseData = { 
-        ...newCourse, 
+      const courseData = {
+        title: newCourse.title.trim(),
+        description: newCourse.description.trim(),
+        price: parseFloat(newCourse.price) || 0,
+        category: newCourse.category,
+        thumbnail: newCourse.thumbnail,
         videos: videosForBackend,
-        price: parseFloat(newCourse.price) || 0
       };
+
+      console.log("Sending course data:", courseData);
 
       const res = await fetch("/api/courses", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(courseData),
       });
-      
+
       if (res.status === 401) {
         localStorage.removeItem("lms_token");
         return handleUnauthorized();
       }
-      
+
       if (res.status === 403) {
         setError("You don't have permission to create courses");
         return;
       }
-      
-      if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.message || "Failed to add course");
-      }
-      
+
       const data = await res.json();
-      setCourses((prev) => [data, ...prev]);
+
+      if (!res.ok) {
+        throw new Error(data.error || data.message || "Failed to add course");
+      }
+
+      // Show success message
+      setSuccess("Course added successfully!");
+
+      // Reset form
       setNewCourse({
         title: "",
         description: "",
@@ -192,6 +224,12 @@ export default function AdminCoursesPage() {
       });
       setShowAddForm(false);
       setError(null);
+
+      // Refresh courses list
+      fetchCourses();
+
+      // Clear success message after 3 seconds
+      setTimeout(() => setSuccess(null), 3000);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -201,74 +239,110 @@ export default function AdminCoursesPage() {
 
   const handleEditCourse = async () => {
     if (!checkAuth() || !editingCourse) return;
-    
-    if (
-      !editingCourse.title ||
-      !editingCourse.description ||
-      editingCourse.videos.length === 0
-    ) {
-      setError("Please fill all fields and add at least one video!");
+
+    // Validate required fields
+    if (!editingCourse.title.trim()) {
+      setError("Course title is required!");
       return;
     }
 
-    // Validate YouTube URLs
-    const invalidVideos = editingCourse.videos.filter(video => 
-      !isValidYouTubeUrl(video.youtubeUrl)
+    if (!editingCourse.description.trim()) {
+      setError("Course description is required!");
+      return;
+    }
+
+    if (editingCourse.videos.length === 0) {
+      setError("Please add at least one video!");
+      return;
+    }
+
+    // Validate all videos have URLs
+    const emptyVideoIndex = editingCourse.videos.findIndex(
+      (video) => !video.youtubeUrl || !video.youtubeUrl.trim(),
     );
-    
+
+    if (emptyVideoIndex !== -1) {
+      setError(
+        `Please enter a YouTube URL for Video ${emptyVideoIndex + 1} (${editingCourse.videos[emptyVideoIndex].title || "Untitled"})`,
+      );
+      return;
+    }
+
+    // Validate YouTube URLs format
+    const invalidVideos = editingCourse.videos.filter(
+      (video) => video.youtubeUrl && !isValidYouTubeUrl(video.youtubeUrl),
+    );
+
     if (invalidVideos.length > 0) {
-      setError("Please enter valid YouTube URLs");
+      setError(
+        "Please enter valid YouTube URLs (youtube.com or youtu.be links)",
+      );
       return;
     }
 
     setIsLoading((prev) => ({ ...prev, edit: true }));
     setError(null);
-    
+
     try {
       const token = localStorage.getItem("lms_token");
 
-      const videosForBackend = editingCourse.videos.map((v) => ({
-        id: v.id || undefined, // Include ID for existing videos
-        title: v.title.trim(),
-        url: extractYouTubeId(v.youtubeUrl),
+      // Prepare videos - send full URLs
+      const videosForBackend = editingCourse.videos.map((v, index) => ({
+        id: v.id || undefined,
+        title: v.title.trim() || `Video ${index + 1}`,
+        url: v.youtubeUrl.trim(), // Send full URL
       }));
 
-      const courseData = { 
-        ...editingCourse, 
+      const courseData = {
+        title: editingCourse.title.trim(),
+        description: editingCourse.description.trim(),
+        price: parseFloat(editingCourse.price) || 0,
+        category: editingCourse.category,
+        thumbnail: editingCourse.thumbnail,
         videos: videosForBackend,
-        price: parseFloat(editingCourse.price) || 0
       };
+
+      console.log("Sending update data:", courseData);
 
       const res = await fetch(`/api/courses?id=${editingCourse.id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(courseData),
       });
-      
+
       if (res.status === 401) {
         localStorage.removeItem("lms_token");
         return handleUnauthorized();
       }
-      
+
       if (res.status === 403) {
         setError("You don't have permission to edit courses");
         return;
       }
-      
-      if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.message || "Failed to update course");
-      }
-      
+
       const data = await res.json();
-      setCourses((prev) => 
-        prev.map(course => course.id === data.id ? data : course)
-      );
+
+      if (!res.ok) {
+        throw new Error(
+          data.error || data.message || "Failed to update course",
+        );
+      }
+
+      // Show success message
+      setSuccess("Course updated successfully!");
+
+      // Reset editing state
       setEditingCourse(null);
       setError(null);
+
+      // Refresh courses list
+      fetchCourses();
+
+      // Clear success message after 3 seconds
+      setTimeout(() => setSuccess(null), 3000);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -278,37 +352,47 @@ export default function AdminCoursesPage() {
 
   const handleDelete = async () => {
     if (!checkAuth() || !deleteModal.courseId) return;
-    
+
     setIsLoading((prev) => ({ ...prev, delete: true }));
     setError(null);
-    
+
     try {
       const token = localStorage.getItem("lms_token");
       const res = await fetch(`/api/courses?id=${deleteModal.courseId}`, {
         method: "DELETE",
-        headers: { 
-          "Authorization": `Bearer ${token}`,
-          "Content-Type": "application/json"
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
         },
       });
-      
+
       if (res.status === 401) {
         localStorage.removeItem("lms_token");
         return handleUnauthorized();
       }
-      
+
       if (res.status === 403) {
         setError("You don't have permission to delete courses");
         return;
       }
-      
+
+      const data = await res.json();
+
       if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.message || "Failed to delete course");
+        throw new Error(
+          data.error || data.message || "Failed to delete course",
+        );
       }
-      
-      await fetchCourses();
+
+      // Show success message
+      setSuccess("Course deleted successfully!");
+
+      // Close modal and refresh
       setDeleteModal({ open: false, courseId: null, courseTitle: "" });
+      fetchCourses();
+
+      // Clear success message after 3 seconds
+      setTimeout(() => setSuccess(null), 3000);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -319,14 +403,20 @@ export default function AdminCoursesPage() {
   // Start editing a course
   const startEditing = (course) => {
     // Convert video URLs to YouTube format for editing
-    const videosWithYoutubeUrls = course.videos.map(video => ({
-      ...video,
-      youtubeUrl: convertToYoutubeUrl(video.url)
+    const videosWithYoutubeUrls = course.videos.map((video, index) => ({
+      id: video.id,
+      title: video.title || `Video ${index + 1}`,
+      youtubeUrl: video.url, // Already contains the full URL
     }));
-    
+
     setEditingCourse({
-      ...course,
-      videos: videosWithYoutubeUrls
+      id: course.id,
+      title: course.title,
+      description: course.description,
+      price: course.price,
+      category: course.category,
+      thumbnail: course.thumbnail,
+      videos: videosWithYoutubeUrls,
     });
   };
 
@@ -335,42 +425,54 @@ export default function AdminCoursesPage() {
     setEditingCourse(null);
   };
 
-  // YouTube URL validation
+  // YouTube URL validation - accepts multiple formats
   const isValidYouTubeUrl = (url) => {
-    const pattern = /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/.+$/;
-    return pattern.test(url);
+    if (!url || typeof url !== "string") return false;
+
+    const trimmedUrl = url.trim();
+    if (!trimmedUrl) return false;
+
+    // Acceptable patterns:
+    // 1. https://youtu.be/VIDEO_ID
+    // 2. https://www.youtube.com/watch?v=VIDEO_ID
+    // 3. https://www.youtube.com/embed/VIDEO_ID
+    // 4. Just VIDEO_ID (11 characters)
+    // 5. http:// versions of the above
+
+    const patterns = [
+      /^(https?:\/\/)?(www\.)?youtube\.com\/watch\?v=[a-zA-Z0-9_-]{11}/,
+      /^(https?:\/\/)?(www\.)?youtu\.be\/[a-zA-Z0-9_-]{11}/,
+      /^(https?:\/\/)?(www\.)?youtube\.com\/embed\/[a-zA-Z0-9_-]{11}/,
+      /^[a-zA-Z0-9_-]{11}$/, // Just the video ID
+    ];
+
+    return patterns.some((pattern) => pattern.test(trimmedUrl));
   };
 
-  // Extract YouTube ID from URL
-  const extractYouTubeId = (url) => {
-    const regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
-    const match = url.match(regExp);
-    return (match && match[7].length === 11) ? match[7] : null;
-  };
-
-  // Convert embed URL to YouTube URL for editing
-  const convertToYoutubeUrl = (url) => {
-    if (url.includes('youtube.com/embed/')) {
-      const videoId = url.split('embed/')[1];
-      return `https://www.youtube.com/watch?v=${videoId}`;
-    }
-    return url;
-  };
-
+  // Add a new video field
   const addVideo = (isEditing = false) => {
+    const newVideo = {
+      title: "",
+      youtubeUrl: "",
+      position: isEditing
+        ? editingCourse.videos.length + 1
+        : newCourse.videos.length + 1,
+    };
+
     if (isEditing) {
       setEditingCourse((prev) => ({
         ...prev,
-        videos: [...prev.videos, { title: "", youtubeUrl: "" }],
+        videos: [...prev.videos, newVideo],
       }));
     } else {
       setNewCourse((prev) => ({
         ...prev,
-        videos: [...prev.videos, { title: "", youtubeUrl: "" }],
+        videos: [...prev.videos, newVideo],
       }));
     }
   };
 
+  // Update video field
   const updateVideo = (index, field, value, isEditing = false) => {
     if (isEditing) {
       const updatedVideos = [...editingCourse.videos];
@@ -383,6 +485,7 @@ export default function AdminCoursesPage() {
     }
   };
 
+  // Remove video field
   const removeVideo = (index, isEditing = false) => {
     if (isEditing) {
       const updatedVideos = [...editingCourse.videos];
@@ -397,7 +500,18 @@ export default function AdminCoursesPage() {
 
   // Input sanitization
   const sanitizeInput = (input) => {
-    return input.replace(/[<>]/g, '');
+    if (!input) return "";
+    return input.toString().replace(/[<>]/g, "");
+  };
+
+  // Format YouTube URL for display
+  const formatYouTubeUrl = (url) => {
+    if (!url) return "";
+    // If it's just an ID, show it as a youtu.be link
+    if (/^[a-zA-Z0-9_-]{11}$/.test(url)) {
+      return `https://youtu.be/${url}`;
+    }
+    return url;
   };
 
   if (!checkAuth()) {
@@ -442,6 +556,18 @@ export default function AdminCoursesPage() {
         </div>
       )}
 
+      {success && (
+        <div className={styles.alertSuccess}>
+          <p>{success}</p>
+          <button
+            onClick={() => setSuccess(null)}
+            className={styles.closeSuccess}
+          >
+            <FiX size={16} />
+          </button>
+        </div>
+      )}
+
       {showAddForm && (
         <div className={styles.addForm}>
           <h2 className={styles.formTitle}>Add New Course</h2>
@@ -455,7 +581,10 @@ export default function AdminCoursesPage() {
               placeholder="Enter course title"
               value={newCourse.title}
               onChange={(e) =>
-                setNewCourse({ ...newCourse, title: sanitizeInput(e.target.value) })
+                setNewCourse({
+                  ...newCourse,
+                  title: sanitizeInput(e.target.value),
+                })
               }
               maxLength={100}
               required
@@ -468,7 +597,10 @@ export default function AdminCoursesPage() {
               placeholder="Enter course description"
               value={newCourse.description}
               onChange={(e) =>
-                setNewCourse({ ...newCourse, description: sanitizeInput(e.target.value) })
+                setNewCourse({
+                  ...newCourse,
+                  description: sanitizeInput(e.target.value),
+                })
               }
               maxLength={500}
               required
@@ -522,16 +654,18 @@ export default function AdminCoursesPage() {
                 <div className={styles.videoInputs}>
                   <input
                     type="text"
-                    placeholder="Video Title *"
+                    placeholder={`Video ${idx + 1} Title *`}
                     value={video.title}
-                    onChange={(e) => updateVideo(idx, "title", sanitizeInput(e.target.value))}
+                    onChange={(e) =>
+                      updateVideo(idx, "title", sanitizeInput(e.target.value))
+                    }
                     required
                   />
                   <div className={styles.youtubeInput}>
                     <FaYoutube size={18} className={styles.youtubeIcon} />
                     <input
-                      type="url"
-                      placeholder="YouTube URL *"
+                      type="text"
+                      placeholder="YouTube URL or ID * (e.g., https://youtu.be/VIDEO_ID or just VIDEO_ID)"
                       value={video.youtubeUrl}
                       onChange={(e) =>
                         updateVideo(idx, "youtubeUrl", e.target.value)
@@ -539,30 +673,47 @@ export default function AdminCoursesPage() {
                       required
                     />
                   </div>
+                  {video.youtubeUrl && !isValidYouTubeUrl(video.youtubeUrl) && (
+                    <small className={styles.urlHint}>
+                      Please enter a valid YouTube URL or 11-character video ID
+                    </small>
+                  )}
                 </div>
                 <button
                   className={styles.removeVideoBtn}
                   onClick={() => removeVideo(idx)}
                   type="button"
+                  disabled={newCourse.videos.length === 1}
                 >
                   <FiTrash2 size={14} />
                 </button>
               </div>
             ))}
 
-            <button 
-              className={styles.addVideoBtn} 
+            <button
+              className={styles.addVideoBtn}
               onClick={() => addVideo(false)}
               type="button"
             >
               <FiPlus size={16} /> Add Video
             </button>
+
+            <div className={styles.urlExamples}>
+              <p>
+                <strong>Accepted formats:</strong>
+              </p>
+              <ul>
+                <li>Full URL: https://youtu.be/xBacRip8o5Y</li>
+                <li>Full URL: https://www.youtube.com/watch?v=xBacRip8o5Y</li>
+                <li>Video ID only: xBacRip8o5Y (11 characters)</li>
+              </ul>
+            </div>
           </div>
 
           <button
             className={styles.submitButton}
             onClick={handleAddCourse}
-            disabled={isLoading.add}
+            disabled={isLoading.add || newCourse.videos.length === 0}
           >
             {isLoading.add ? "Adding Course..." : "Add Course"}
           </button>
@@ -582,7 +733,10 @@ export default function AdminCoursesPage() {
               placeholder="Enter course title"
               value={editingCourse.title}
               onChange={(e) =>
-                setEditingCourse({ ...editingCourse, title: sanitizeInput(e.target.value) })
+                setEditingCourse({
+                  ...editingCourse,
+                  title: sanitizeInput(e.target.value),
+                })
               }
               maxLength={100}
               required
@@ -595,7 +749,10 @@ export default function AdminCoursesPage() {
               placeholder="Enter course description"
               value={editingCourse.description}
               onChange={(e) =>
-                setEditingCourse({ ...editingCourse, description: sanitizeInput(e.target.value) })
+                setEditingCourse({
+                  ...editingCourse,
+                  description: sanitizeInput(e.target.value),
+                })
               }
               maxLength={500}
               required
@@ -627,7 +784,10 @@ export default function AdminCoursesPage() {
               <select
                 value={editingCourse.category}
                 onChange={(e) =>
-                  setEditingCourse({ ...editingCourse, category: e.target.value })
+                  setEditingCourse({
+                    ...editingCourse,
+                    category: e.target.value,
+                  })
                 }
               >
                 <option value="web-dev">Web Development</option>
@@ -645,20 +805,27 @@ export default function AdminCoursesPage() {
             </h3>
 
             {editingCourse.videos.map((video, idx) => (
-              <div key={idx} className={styles.videoRow}>
+              <div key={video.id || idx} className={styles.videoRow}>
                 <div className={styles.videoInputs}>
                   <input
                     type="text"
-                    placeholder="Video Title *"
+                    placeholder={`Video ${idx + 1} Title *`}
                     value={video.title}
-                    onChange={(e) => updateVideo(idx, "title", sanitizeInput(e.target.value), true)}
+                    onChange={(e) =>
+                      updateVideo(
+                        idx,
+                        "title",
+                        sanitizeInput(e.target.value),
+                        true,
+                      )
+                    }
                     required
                   />
                   <div className={styles.youtubeInput}>
                     <FaYoutube size={18} className={styles.youtubeIcon} />
                     <input
-                      type="url"
-                      placeholder="YouTube URL *"
+                      type="text"
+                      placeholder="YouTube URL or ID * (e.g., https://youtu.be/VIDEO_ID or just VIDEO_ID)"
                       value={video.youtubeUrl}
                       onChange={(e) =>
                         updateVideo(idx, "youtubeUrl", e.target.value, true)
@@ -666,24 +833,41 @@ export default function AdminCoursesPage() {
                       required
                     />
                   </div>
+                  {video.youtubeUrl && !isValidYouTubeUrl(video.youtubeUrl) && (
+                    <small className={styles.urlHint}>
+                      Please enter a valid YouTube URL or 11-character video ID
+                    </small>
+                  )}
                 </div>
                 <button
                   className={styles.removeVideoBtn}
                   onClick={() => removeVideo(idx, true)}
                   type="button"
+                  disabled={editingCourse.videos.length === 1}
                 >
                   <FiTrash2 size={14} />
                 </button>
               </div>
             ))}
 
-            <button 
-              className={styles.addVideoBtn} 
+            <button
+              className={styles.addVideoBtn}
               onClick={() => addVideo(true)}
               type="button"
             >
               <FiPlus size={16} /> Add Video
             </button>
+
+            <div className={styles.urlExamples}>
+              <p>
+                <strong>Accepted formats:</strong>
+              </p>
+              <ul>
+                <li>Full URL: https://youtu.be/xBacRip8o5Y</li>
+                <li>Full URL: https://www.youtube.com/watch?v=xBacRip8o5Y</li>
+                <li>Video ID only: xBacRip8o5Y (11 characters)</li>
+              </ul>
+            </div>
           </div>
 
           <div className={styles.editActions}>
@@ -697,9 +881,15 @@ export default function AdminCoursesPage() {
             <button
               className={styles.submitButton}
               onClick={handleEditCourse}
-              disabled={isLoading.edit}
+              disabled={isLoading.edit || editingCourse.videos.length === 0}
             >
-              {isLoading.edit ? "Saving..." : <><FiSave size={16} /> Save Changes</>}
+              {isLoading.edit ? (
+                "Saving..."
+              ) : (
+                <>
+                  <FiSave size={16} /> Save Changes
+                </>
+              )}
             </button>
           </div>
         </div>
@@ -726,14 +916,13 @@ export default function AdminCoursesPage() {
                 </span>
               </div>
               <p className={styles.cardDescription}>
-                {course.description.length > 100 
-                  ? `${course.description.substring(0, 100)}...` 
-                  : course.description
-                }
+                {course.description.length > 100
+                  ? `${course.description.substring(0, 100)}...`
+                  : course.description}
               </p>
               <div className={styles.cardFooter}>
                 <div className={styles.price}>
-                  <FiDollarSign size={14} /> {course.price.toFixed(2)}
+                  <FiDollarSign size={14} /> ${course.price.toFixed(2)}
                 </div>
                 <div className={styles.videoCount}>
                   <FiVideo size={14} /> {course.videos?.length || 0} videos

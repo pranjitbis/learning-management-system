@@ -49,8 +49,24 @@ export default function AdminUsersPage() {
       const usersData = await usersRes.json();
       const coursesData = await coursesRes.json();
 
-      setUsers(usersData);
-      setCourses(coursesData);
+      // Handle both response formats: array or object with courses property
+      setUsers(usersData || []);
+
+      // Handle courses response format
+      if (Array.isArray(coursesData)) {
+        setCourses(coursesData);
+      } else if (
+        coursesData &&
+        coursesData.courses &&
+        Array.isArray(coursesData.courses)
+      ) {
+        setCourses(coursesData.courses);
+      } else if (coursesData && Array.isArray(coursesData.data)) {
+        setCourses(coursesData.data);
+      } else {
+        setCourses([]);
+      }
+
       setError(null);
     } catch (err) {
       setError(err.message);
@@ -62,7 +78,7 @@ export default function AdminUsersPage() {
   const filteredUsers = users.filter(
     (user) =>
       user.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.email?.toLowerCase().includes(searchTerm.toLowerCase())
+      user.email?.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   const handleAddUser = async () => {
@@ -107,12 +123,12 @@ export default function AdminUsersPage() {
     }
   };
 
-  // MISSING FUNCTION: Handle granting course access
+  // Handle granting course access
   const handleGrantAccess = async (userId, courseId) => {
     if (!courseId) return;
-    
+
     setGrantingAccess({ userId, courseId });
-    
+
     try {
       const res = await fetch("/api/access", {
         method: "POST",
@@ -128,7 +144,7 @@ export default function AdminUsersPage() {
         const usersData = await usersRes.json();
         setUsers(usersData);
       }
-      
+
       setError(null);
     } catch (err) {
       alert(err.message);
@@ -137,10 +153,11 @@ export default function AdminUsersPage() {
     }
   };
 
-  // MISSING FUNCTION: Handle removing course access
+  // Handle removing course access
   const handleRemoveAccess = async (userId, accessId) => {
-    if (!window.confirm("Are you sure you want to remove this course access?")) return;
-    
+    if (!window.confirm("Are you sure you want to remove this course access?"))
+      return;
+
     try {
       const res = await fetch(`/api/user-access?id=${accessId}`, {
         method: "DELETE",
@@ -154,7 +171,7 @@ export default function AdminUsersPage() {
         const usersData = await usersRes.json();
         setUsers(usersData);
       }
-      
+
       setError(null);
     } catch (err) {
       alert(err.message);
@@ -428,7 +445,7 @@ export default function AdminUsersPage() {
                                 onChange={(e) =>
                                   handleGrantAccess(
                                     user.id,
-                                    parseInt(e.target.value)
+                                    parseInt(e.target.value),
                                   )
                                 }
                                 defaultValue=""
@@ -437,11 +454,17 @@ export default function AdminUsersPage() {
                                 <option value="">
                                   Select course to grant access
                                 </option>
-                                {courses.map((course) => (
-                                  <option key={course.id} value={course.id}>
-                                    {course.title}
+                                {courses.length > 0 ? (
+                                  courses.map((course) => (
+                                    <option key={course.id} value={course.id}>
+                                      {course.title}
+                                    </option>
+                                  ))
+                                ) : (
+                                  <option value="" disabled>
+                                    No courses available
                                   </option>
-                                ))}
+                                )}
                               </select>
                               {grantingAccess?.userId === user.id && (
                                 <div className={styles.grantingIndicator}>
@@ -460,7 +483,9 @@ export default function AdminUsersPage() {
                                       className={styles.accessItem}
                                     >
                                       <span>
-                                        {access.course?.title || access.name}
+                                        {access.course?.title ||
+                                          access.name ||
+                                          `Course ID: ${access.courseId}`}
                                       </span>
                                       <button
                                         className={styles.removeAccessButton}

@@ -17,7 +17,52 @@
   color: #2d3748;
 }
 /* Add these styles to your existing courses.module.css */
+/* Add these to your existing courses.module.css */
+.alertSuccess {
+  background-color: #d1fae5;
+  color: #065f46;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 1px solid #a7f3d0;
+}
 
+.closeSuccess {
+  background: none;
+  border: none;
+  color: #065f46;
+  cursor: pointer;
+  padding: 0;
+}
+
+.urlHint {
+  color: #dc2626;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+  display: block;
+}
+
+.urlExamples {
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 1rem;
+  margin-top: 1rem;
+  font-size: 0.875rem;
+}
+
+.urlExamples ul {
+  margin: 0.5rem 0 0 1.5rem;
+  padding: 0;
+}
+
+.urlExamples li {
+  margin-bottom: 0.25rem;
+  color: #64748b;
+}
 .videosList {
   margin: 15px 0;
   padding: 10px;
