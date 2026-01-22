@@ -13,12 +13,16 @@ import {
 } from "react-icons/fa";
 import styles from "./css/dashboard.module.css";
 
-export default function AdminDashboard() {
+export default function AdminDashboardPage() {
   const router = useRouter();
-
   const [users, setUsers] = useState([]);
   const [courses, setCourses] = useState([]);
   const [certificates, setCertificates] = useState([]);
+  const [loading, setLoading] = useState({
+    users: true,
+    courses: true,
+    certificates: true,
+  });
 
   useEffect(() => {
     fetchUsers();
@@ -32,30 +36,91 @@ export default function AdminDashboard() {
   };
 
   const fetchUsers = async () => {
-    const res = await fetch("/api/users", { method: "GET" });
-    if (res.ok) setUsers(await res.json());
-    if (res.status === 401) handleUnauthorized();
+    try {
+      const res = await fetch("/api/users", { method: "GET" });
+      if (res.ok) {
+        const data = await res.json();
+        // Handle different response formats
+        const usersData = Array.isArray(data)
+          ? data
+          : data?.data
+            ? data.data
+            : data?.users
+              ? data.users
+              : [];
+        setUsers(usersData);
+      }
+      if (res.status === 401) handleUnauthorized();
+    } catch (error) {
+      console.error("Error fetching users:", error);
+    } finally {
+      setLoading((prev) => ({ ...prev, users: false }));
+    }
   };
 
   const fetchCourses = async () => {
-    const res = await fetch("/api/courses", { method: "GET" });
-    if (res.ok) setCourses(await res.json());
-    if (res.status === 401) handleUnauthorized();
+    try {
+      const res = await fetch("/api/courses", { method: "GET" });
+      if (res.ok) {
+        const data = await res.json();
+        // Handle different response formats
+        const coursesData = Array.isArray(data)
+          ? data
+          : data?.data
+            ? data.data
+            : data?.courses
+              ? data.courses
+              : [];
+        setCourses(coursesData);
+      }
+      if (res.status === 401) handleUnauthorized();
+    } catch (error) {
+      console.error("Error fetching courses:", error);
+    } finally {
+      setLoading((prev) => ({ ...prev, courses: false }));
+    }
   };
 
   const fetchCertificates = async () => {
-    const res = await fetch("/api/certificates", { method: "GET" });
-    if (res.ok) setCertificates(await res.json());
-    if (res.status === 401) handleUnauthorized();
+    try {
+      const res = await fetch("/api/certificates", { method: "GET" });
+      if (res.ok) {
+        const data = await res.json();
+        // Handle different response formats
+        const certsData = Array.isArray(data)
+          ? data
+          : data?.data
+            ? data.data
+            : data?.certificates
+              ? data.certificates
+              : [];
+        setCertificates(certsData);
+      }
+      if (res.status === 401) handleUnauthorized();
+    } catch (error) {
+      console.error("Error fetching certificates:", error);
+    } finally {
+      setLoading((prev) => ({ ...prev, certificates: false }));
+    }
   };
 
   const totalCertificates = certificates.filter((c) => c.approved).length;
   const pendingCertificates = certificates.filter((c) => !c.approved).length;
 
+  // Show loading state
+  const isLoading = loading.users || loading.courses || loading.certificates;
+
+  if (isLoading) {
+    return (
+      <div className={styles.loadingContainer}>
+        <div className={styles.loadingSpinner}></div>
+        <p>Loading dashboard data...</p>
+      </div>
+    );
+  }
+
   return (
     <div className={styles.adminContainer}>
-      {/* Mobile Header */}
-
       {/* Main Content */}
       <main className={styles.mainContent}>
         {/* Dashboard Content */}
@@ -119,29 +184,24 @@ export default function AdminDashboard() {
             <div className={styles.coursesGrid}>
               {courses.slice(0, 4).map((course) => {
                 const courseCertificates = certificates.filter(
-                  (c) => c.courseId === course.id && c.approved
+                  (c) => c.courseId === course.id && c.approved,
                 );
 
                 return (
                   <div key={course.id} className={styles.courseCard}>
-                    {course.thumbnail && (
-                      <img
-                        src={`/uploads/${course.thumbnail}`}
-                        alt={course.title}
-                        className={styles.thumbnail}
-                      />
-                    )}
                     <div className={styles.courseInfo}>
-                      <h4>{course.title}</h4>
+                      <h4>{course.title || "Untitled Course"}</h4>
                       <p className={styles.courseDesc}>
-                        {course.description.substring(0, 60)}...
+                        {course.description
+                          ? `${course.description.substring(0, 60)}...`
+                          : "No description available"}
                       </p>
                       <div className={styles.courseMeta}>
                         <span>
-                          <FaVideo /> {course.videos.length} videos
+                          <FaVideo /> {course.videos?.length || 0} videos
                         </span>
                         <span>
-                          <FaDollarSign /> {course.price}
+                          <FaDollarSign /> ${course.price || 0}
                         </span>
                         <span>
                           <FaGraduationCap /> {courseCertificates.length} certs

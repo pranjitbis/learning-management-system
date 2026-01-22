@@ -9,7 +9,6 @@ import {
   FaCertificate,
   FaBars,
   FaTimes,
-  FaSearch,
   FaBell,
   FaUserCircle,
 } from "react-icons/fa";
@@ -47,7 +46,6 @@ export default function AdminLayout({ children }) {
         className={`${styles.sidebar} ${sidebarOpen ? styles.sidebarOpen : ""}`}
       >
         <button className={styles.CloseIcons} onClick={handleClick}>
-          {" "}
           <ImCancelCircle />
         </button>
 
